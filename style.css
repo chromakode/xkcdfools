@@ -19,7 +19,7 @@ a, a:visited, .linky { color:#FFF; cursor:pointer; font-weight:bold; text-decora
 a:hover, span.linky:hover, td.linky:hover { background-color:#FFF; color:#000; } /*you poor IE-using bastards*/
 table { border-collapse:collapse; }
 td { padding:0 1em 0 1em; }
-.stealth { background-color:#000; border:0px; color:#000; color:black; height:0px; width:0px; }
+.stealth { background-color:#000; border:0px; color:#000; color:black; height:0px; width:0px; opacity:0; }
 a#undercsr { font-weight:normal; /*text-decoration:underline;*/ }
 div#pagealert { background-color:#FFF; bottom:0px; bottom:2px; color:#000; left:2px; margin:0; padding:0; position:absolute; text-align:center; visibility:hidden; width:auto; }
 div#indicators { bottom:0px; bottom:2px; left:2px; margin:0; padding:0; position:absolute; text-align:center; }
