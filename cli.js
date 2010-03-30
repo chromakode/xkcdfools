@@ -82,21 +82,15 @@ function cursorBlink() {
 
 function initializeCLI() {
 	var b = document.getElementsByTagName('body').item(0);
-	if (navigator.appVersion.indexOf('AppleWebKit') > 0) {
-		b.onkeypress = function (event) {
-			handleKeyEvent(event);
-		};
+	/*if (navigator.appVersion.indexOf('WebKit') > 0) {
+		b.onkeypress = handleKeyEvent;
 		b.onkeydown = function (event) {};
 		b.onkeyup = function (event) {};
-	} else {
-		b.onkeypress = function (event) {};
-		b.onkeydown = function (event) {
-			handleKeyEvent(event);
-		};
-		b.onkeyup = function (event) {
-			handleKeyEvent(event);
-		};
-	}
+	} else {*/
+	b.onkeypress = function (event) {};
+	b.onkeydown = handleKeyEvent;
+	b.onkeyup = handleKeyEvent;
+	/*}*/
 	screenElement = document.getElementById('scr');
 	displayElement = document.getElementById('display');
 	spinnerElement = document.getElementById('spinnerdiv');
@@ -607,9 +601,11 @@ function handleKeyEvent(e) {
 	} //bah, i have no idea
 	dbg = e;
 
-	if (navigator.appVersion.indexOf('AppleWebKit') > 0) {
+	if (navigator.appVersion.indexOf('WebKit') > 0) {
 		//alert(keyCode+' : '+keycodes[keyCode]);
-		character = String.fromCharCode(e.charCode);
+		if (keycodes[keyCode] && keycodes[keyCode].length == 1) {
+			character = keycodes[keyCode];
+		}
 		/*if (keycodes[keyCode] && keycodes[keyCode].length == 1) {
 			if (e.charCode == 0) {
 				alert("key event data: charCode " + e.charCode + " which " + e.which + " keyCode " + e.keyCode);
