@@ -4,162 +4,30 @@
 	Now dynamic to support changing colours in the configuration.
 */
 
-html,body{
-	height:99%;
-}
-
-body{
-	background-color:#000;
-	font-family:"Courier New",Courier,monospace;
-	padding:0;
-	margin:0 15px;
-	overflow:hidden;
-} 
-
-pre, td, th, p, div{
-	color:#FFF;
-	font-family:"Courier New",Courier,monospace;
-	font-size:1em;
-}
-
-div#scr{
-	background-color:#000;
-	height:99%;
-	margin:2px;
-	padding:0;
-	overflow:hidden;
-}
-
-div#d_and_c{
-	background-color:#000;
-	margin:0;
-	padding:0;
-}
-
-div#display{
-}
-
-p, pre, div, table{
-	margin-top:0em;
-	margin-bottom:1em;
-}
-
-pre, td, p{
-	background-color:transparent;
-}
-
-code,p,span,td,th{
-	font-size:1em;
-}
-h1, h2, h3, h4, h5, h6{
-	background-color:#FFF;
-	color:#000;
-}
-
-a, a:visited, .linky{
-	color:#FFF;
-	text-decoration:none;
-	font-weight:bold;
-	cursor:pointer;
-}
-
-a:hover, span.linky:hover, td.linky:hover{ /*you poor IE-using bastards*/
-	color:#000;
-	background-color:#FFF;
-}
-
-table{
-	border-collapse:collapse;
-}
-
-td{
-	padding:0 1em 0 1em;
-}
-
-.stealth{
-	color:#000;
-	color:black;
-	background-color:#000;
-	width:0px;
-	height:0px;
-	border:0px;
-}
-
-a#undercsr{
-	font-weight:normal;
-	/*text-decoration:underline;*/
-}
-
-div#pagealert{
-	position:absolute;
-	bottom:0px;
-	margin:0;
-	padding:0;
-	left:2px;
-	bottom:2px;
-	width:auto;
-	text-align:center;
-	background-color:#FFF;
-	color:#000;
-	visibility:hidden;
-}
-div#indicators{
-	position:absolute;
-	bottom:2px;
-	bottom:0px;
-	left:2px;
-	margin:0;
-	padding:0;
-	text-align:center;
-}
-span#ALTindicator,span#CTRLindicator,span#SCRLOCKindicator{
-	display:none;
-	background-color:#FFF;
-	color:#000;
-}
-div#spinnerdiv{
-	position:absolute;
-	bottom:2px;
-	left:2px;
-	margin:0;
-	padding:0;
-	text-align:center;
-}
-div#cform{
-	position:absolute;
-	top:0;
-	left:0;
-	height:1px;
-	width:1px;
-}
-
-img{ /* for broken images */
-	color: #FFF;
-	font-size:x-small;
-}
-
-form#searchform input[type=text]{
-	background-color:#000;
-	color:#FFF;
-	border:1px solid #FFF;
-	font-family:"Courier New",Courier,monospace;
-	width:100px;
-}
-
-form#searchform input[type=submit]{
-	background-color:#FFF;
-	color:#000;
-	border:1px solid #000;
-	font-size:1em;
-	font-family:"Courier New",Courier,monospace;
-}
-
-div#credit{
-	font-size:xx-small;
-	color:#FFF;
-}
-div#credit a{
-	font-size:xx-small;
-	color:#FFF;
-	text-decoration:underline;
-}
+html, body { height:99%; }
+body { background-color:#000; font-family:"Courier New",Courier,monospace; margin:0 15px; overflow:hidden; padding:0; }
+pre, td, th, p, div { color:#FFF; font-family:"Courier New",Courier,monospace; font-size:1em; }
+div#scr { background-color:#000; height:99%; margin:2px; overflow:hidden; padding:0; }
+div#d_and_c { background-color:#000; margin:0; padding:0; }
+div#display { }
+p, pre, div, table { margin-bottom:1em; margin-top:0em; }
+pre, td, p { background-color:transparent; }
+code, p, span, td, th { font-size:1em; }
+p, div#display { margin-bottom:0; }
+h1, h2, h3, h4, h5, h6 { background-color:#FFF; color:#000; }
+a, a:visited, .linky { color:#FFF; cursor:pointer; font-weight:bold; text-decoration:none; }
+a:hover, span.linky:hover, td.linky:hover { background-color:#FFF; color:#000; } /*you poor IE-using bastards*/
+table { border-collapse:collapse; }
+td { padding:0 1em 0 1em; }
+.stealth { background-color:#000; border:0px; color:#000; color:black; height:0px; width:0px; }
+a#undercsr { font-weight:normal; /*text-decoration:underline;*/ }
+div#pagealert { background-color:#FFF; bottom:0px; bottom:2px; color:#000; left:2px; margin:0; padding:0; position:absolute; text-align:center; visibility:hidden; width:auto; }
+div#indicators { bottom:0px; bottom:2px; left:2px; margin:0; padding:0; position:absolute; text-align:center; }
+span#ALTindicator,span#CTRLindicator,span#SCRLOCKindicator { background-color:#FFF; color:#000; display:none; }
+div#spinnerdiv { bottom:2px; left:2px; margin:0; padding:0; position:absolute; text-align:center; }
+div#cform { height:1px; left:0; position:absolute; top:0; width:1px; }
+img { color:#FFF; font-size:x-small; } /* for broken images */
+form#searchform input[type=text] { background-color:#000; border:1px solid #FFF; color:#FFF; font-family:"Courier New",Courier,monospace; width:100px; }
+form#searchform input[type=submit] { background-color:#FFF; border:1px solid #000; color:#000; font-family:"Courier New",Courier,monospace; font-size:1em; }
+div#credit { color:#FFF; font-size:xx-small; }
+div#credit a { color:#FFF; font-size:xx-small; text-decoration:underline; }
