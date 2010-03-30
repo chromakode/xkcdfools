@@ -2,19 +2,12 @@
  Client-side logic for Wordpress CLI theme
  R. McFarland, 2006, 2007, 2008
  http://thrind.xamai.ca/
- 
- Sadly there is some browser sniffing that has to be done. Also
- we set the link to the GUI version of the blog, if any. This is why 
- we're serving a Javascript file via PHP.
  */
 var dbg = null;
 var displayElement = null;
 var screenElement = null;
 var promptElement = null;
 var spinnerElement = null;
-var preInputArea = null;
-var inputArea = null;
-var postInputArea = null;
 var bottomlineElement = null;
 var leftOfCursorElement = null;
 var cursorElement = null;
@@ -35,9 +28,7 @@ var eatIt = false; // eat next character input
 var spinnerCharacters = ['-', '\\', '|', '/'];
 var spinnerCharacterIndex = 0;
 var spinnerThreadId = false;
-var stickyState = []; // for "sticky" modifier keys
-stickyState.CTRL = false;
-stickyState.ALT = false;
+var stickyState = {ctrl: false, alt: false, scroll: false}; // for "sticky" modifier keys
 var xmlhttp = false;
 var interpreter = "interpret.php";
 var requestId = 0;
@@ -160,7 +151,6 @@ function updateInputDisplay() {
 }
 
 function clearInputBuffer() {
-	inputArea.value = '';
 	inputBuffer = '';
 	cursorPosition = 0;
 	updateInputDisplay();
@@ -169,7 +159,7 @@ function clearInputBuffer() {
 function setPromptActive(active) {
 	if (active) {
 		bottomlineElement.style.visibility = 'visible';
-		inputArea.focus();
+		
 		return true;
 	} else {
 		bottomlineElement.style.visibility = 'hidden';
@@ -188,12 +178,12 @@ function pageAlert(active) {
 
 function jumpToBottom() {
 	screenElement.scrollTop = screenElement.scrollHeight - screenElement.offsetHeight;
-	inputArea.focus();
+	
 }
 
 function jumpToTop() {
 	screenElement.scrollTop = screenElement.offsetHeight;
-	inputArea.focus();
+	
 }
 
 function backgroundScroller() {
@@ -417,7 +407,7 @@ commands = {
 	help: function help(what) {
 		executeCommand('c=help ' + what, false);
 	}
-}
+};
 
 function processInputBuffer(input) {
 	clearInputBuffer();
@@ -504,92 +494,42 @@ function commandNotFound() {
 	appendToDisplay("<p>Unrecognized command. Type 'help' for assistance.</p>");
 }
 
-function stickyModifierKeys(key, evt) {
-	if (evt !== null && evt.type == 'keydown') {
-		return false;
-	}
+function toggleStickyModifierKey(key) {
+	var indicator;
 	stickyState[key] = !stickyState[key];
-	document.getElementById(key + 'indicator').style.display = (stickyState[key] ? 'inline' : 'none');
+	indicator = $("#"+key+"-indicator");
+	if (stickyState[key]) {
+		indicator.show();
+	} else {
+		indicator.hide();
+	}
 	return true;
 }
 
 function handleKeyEvent(e) {
-	var rval = false;
-	var left, right, character = false,
-		keyName = false,
-		keyCode = false;
 	if (waitingForServer) {
 		return rval;
-	} // waiting on a response from server
-	if (!e && window.event) { //i.e. if it's MSIE
-		e = window.event;
-		inputArea.value = '';
 	}
-	if (!e) return true;
-	if (typeof(e.keyCode) == 'number') {
-		keyCode = e.keyCode;
-	} else if (typeof(e.which) == 'number') {
-		keyCode = e.which;
-	} else if (typeof(e.charCode) == 'number') {
-		keyCode = e.charCode;
-	} else { /*damn*/
-		alert("Damn.");
-		return true;
-	}
-	if (inputBuffer == ENTER) {
-		inputBuffer = '';
-	} //bah, i have no idea
-	dbg = e;
-
-	if (navigator.appVersion.indexOf('WebKit') > 0) {
-		//alert(keyCode+' : '+keycodes[keyCode]);
-		if (keycodes[keyCode] && keycodes[keyCode].length == 1) {
-			character = keycodes[keyCode];
-		}
-		/*if (keycodes[keyCode] && keycodes[keyCode].length == 1) {
-			if (e.charCode == 0) {
-				alert("key event data: charCode " + e.charCode + " which " + e.which + " keyCode " + e.keyCode);
+	
+	if (e.which >= 32 && e.which <= 126) {   
+		character = String.fromCharCode(e.which);
+		if (!(stickyState.CTRL || stickyState.ALT)) {
+			if (character) { // if it's a regular key
+				if (eatIt) {
+					character = '';
+					eatIt = false;
+				}
+				left = inputBuffer.substr(0, cursorPosition);
+				right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
+				inputBuffer = left + character + right;
+				cursorPosition++;
+				updateInputDisplay();
 			}
-			character = String.fromCharCode(e.charCode);
-		} else if (!keycodes[keyCode]) { // for debugging
-			alert(keyCode);
-		}*/
-	} else {
-		if (inputArea.value) {
-			character = inputArea.value.charAt(0);
 		}
 	}
-	if (inputArea.value) {
-			inputArea.value = inputArea.value.substr(1); //remove first character, rest for later
-		}
-	if (waitingAtPage) {
-		if (e.type == 'keydown') {
-			return rval;
-		}
-		pageAlert(false);
-		scroller();
-		return rval;
-	}
-	if (keyCode == 9) { // tab
-		if (e.shiftKey) {
-			postInputArea.focus();
-		} else {
-			preInputArea.focus();
-		}
-	}
-	if (!(stickyState.CTRL || stickyState.ALT)) {
-		if (character && (character.length == 1) && e && (e.keyCode != 13)) { // if it's a regular key
-			if (eatIt) {
-				character = '';
-				eatIt = false;
-			}
-			left = inputBuffer.substr(0, cursorPosition);
-			right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
-			inputBuffer = left + character + right;
-			cursorPosition++;
-			updateInputDisplay();
-		}
-	}
+	
+	return false;
+	
 	if (multilineMode) {
 		scroller();
 	}
@@ -605,10 +545,10 @@ function handleKeyEvent(e) {
 		return rval;
 	}
 	if (keyName == 'ALT' || keyName == 'CTRL') {
-		stickyModifierKeys(keyName, e);
+		toggleStickyModifierKey(keyName, e);
 		return rval;
 	}
-	if (e && (e.type == 'keyup')) {
+	if (e && ((e.type == 'keyup') || (e.type == 'keypress'))) {
 		return rval;
 	}
 	if (e && e.shiftKey) {
@@ -621,12 +561,12 @@ function handleKeyEvent(e) {
 	if ((e && e.ctrlKey) || stickyState.CTRL) {
 		e.returnValue = false;
 		keyName = 'CTRL_' + keyName;
-		stickyModifierKeys('CTRL', null);
+		toggleStickyModifierKey('CTRL', null);
 	}
 	if ((e && e.altKey) || stickyState.ALT) {
 		e.returnValue = false;
 		keyName = 'ALT_' + keyName;
-		stickyModifierKeys('ALT', null);
+		toggleStickyModifierKey('ALT', null);
 	}
 	if (keyName == 'ALT_CTRL_q') { // Wilkommen, Deutsches freunden
 		if (eatIt) {
@@ -644,7 +584,7 @@ function handleKeyEvent(e) {
 	if (keyName == 'BACKSPACE' || keyName == 'CTRL_h') { // ^h fires up the history pane in FF.
 		e.returnValue = false;
 		if (cursorPosition > 0) {
-			inputArea.focus();
+			
 			left = inputBuffer.substr(0, cursorPosition - 1);
 			right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
 			inputBuffer = left + right;
@@ -653,22 +593,7 @@ function handleKeyEvent(e) {
 		}
 		return false;
 	}
-	if (keyName == 'CTRL_w') { // Just for you, snarky visitor. Note that this gets snarfed by most browsers as a "close window" or "close tab" shortcut.
-		e.returnValue = true;
-		if (cursorPosition > 0) {
-			inputArea.focus();
-			var ncp = cursorPosition;
-			while (ncp > 0 && inputBuffer.charAt(ncp) !== ' ') {
-				ncp--;
-			}
-			left = inputBuffer.substr(0, ncp - 1);
-			right = inputBuffer.substr(ncp, inputBuffer.length - cursorPosition);
-			inputBuffer = left + right;
-			cursorPosition = ncp;
-			updateInputDisplay();
-		}
-		return false;
-	}
+
 	if (keyName == 'DEL' || keyName == 'SHIFT_BACKSPACE') {
 		e.returnValue = false;
 		if (cursorPosition < inputBuffer.length) {
@@ -688,18 +613,7 @@ function handleKeyEvent(e) {
 		clearInputBuffer();
 		return rval;
 	}
-	if ((keyName == 'LEFT') && (cursorPosition > 0)) {
-		cursorPosition--;
-		updateInputDisplay();
-		e.returnValue = false;
-		return rval;
-	}
-	if ((keyName == 'RIGHT') && (cursorPosition < inputBuffer.length)) {
-		cursorPosition++;
-		updateInputDisplay();
-		e.returnValue = false;
-		return rval;
-	}
+
 	if (multilineMode) {
 		if (keyName == 'CTRL_x') { // end multilineMode input
 			if (specialCommandHandler) {
@@ -786,7 +700,7 @@ function handleKeyEvent(e) {
 		if (keyName == 'TAB') {
 			left = inputBuffer.substr(0, cursorPosition);
 			right = inputBuffer.substr(cursorPosition);
-			inputBuffer = left + '    ' + right; // 4 spaces 
+			inputBuffer = left + '	' + right; // 4 spaces 
 			cursorPosition += 4;
 			updateInputDisplay();
 			return rval;
@@ -866,26 +780,78 @@ function handleKeyEvent(e) {
 			return rval;
 		}
 	}
-	if (inputArea.value) {
-		handleKeyEvent(false);
-	}
 	return rval;
-}
-if (document.captureEvents && Event.KEYUP) {
-	document.captureEvents(Event.KEYUP);
 }
 
 function initializeCLI() {
-	var b = document.getElementsByTagName('body').item(0);
-	/*if (navigator.appVersion.indexOf('WebKit') > 0) {
-		b.onkeypress = handleKeyEvent;
-		b.onkeydown = function (event) {};
-		b.onkeyup = function (event) {};
-	} else {*/
-	b.onkeypress = function (event) {};
-	b.addEventListener("keydown", handleKeyEvent, false);
-	b.addEventListener("keyup", handleKeyEvent, false);
-	/*}*/
+	$(document)
+		.keypress(function(e) {
+			if (e.which >= 32 && e.which <= 126) {   
+				character = String.fromCharCode(e.which);
+				if (!(stickyState.ctrl || stickyState.alt)) {
+					if ($.browser.opera && $.hotkeys.specialKeys[e.which]
+					                       in {left:true, up:true, right:true, down:true} ) {
+						return // sigh.
+					}
+					if (character) {
+						if (eatIt) {
+							character = '';
+							eatIt = false;
+						}
+						left = inputBuffer.substr(0, cursorPosition);
+						right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
+						inputBuffer = left + character + right;
+						cursorPosition++;
+						updateInputDisplay();
+					}
+				} else if (stickyState.ctrl) {
+					if (character == "w") {
+						if (cursorPosition > 0) {
+							var ncp = cursorPosition;
+							while (ncp > 0 && inputBuffer.charAt(ncp) !== ' ') {
+								ncp--;
+							}
+							left = inputBuffer.substr(0, ncp - 1);
+							right = inputBuffer.substr(ncp, inputBuffer.length - cursorPosition);
+							inputBuffer = left + right;
+							cursorPosition = ncp;
+							updateInputDisplay();
+						}
+						toggleStickyModifierKey("ctrl");						
+					}
+					
+				} else if (stickyState.alt) {
+					
+				}
+			}
+		})
+		.bind("keydown", "backspace", function(e) {
+			e.preventDefault();
+			if (cursorPosition > 0) {
+				left = inputBuffer.substr(0, cursorPosition - 1);
+				right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
+				inputBuffer = left + right;
+				cursorPosition--;
+				updateInputDisplay();
+			}
+		})
+		.bind("keydown", "ctrl", function(e) { toggleStickyModifierKey("ctrl"); })
+		.bind("keydown", "alt", function(e) { toggleStickyModifierKey("alt"); })
+		.bind("keydown", "scroll", function(e) { toggleStickyModifierKey("scroll"); })
+		.bind("keydown", "left", function(e) {
+			e.stopPropagation();
+			if (cursorPosition > 0) {
+				cursorPosition--;
+				updateInputDisplay();
+			}
+		})
+		.bind("keydown", "right", function(e) {
+			e.stopPropagation();
+			if (cursorPosition < inputBuffer.length) {
+				cursorPosition++;
+				updateInputDisplay();
+			}
+		});
 	screenElement = document.getElementById('scr');
 	displayElement = document.getElementById('display');
 	spinnerElement = document.getElementById('spinnerdiv');
@@ -898,22 +864,19 @@ function initializeCLI() {
 	if (!cursorBlinkThreadId) {
 		cursorBlinkThreadId = setInterval(cursorBlink, cursor_blink_time);
 	}
-	var frm = document.forms[0];
-	inputArea = frm.inputArea;
-	preInputArea = frm.preInputArea;
-	postInputArea = frm.postInputArea;
+
 	promptElement.innerHTML = promptText;
 	screenElement.scrollTop = 1;
 
 	spacerElement = document.createElement("div");
 	spacerElement.style.height = screenElement.offsetHeight + "px";
 	displayElement.insertBefore(spacerElement, displayElement.firstChild);
-
-	inputArea.focus();
 }
 
-function start() {
-	document.getElementById('welcome').style.visibility = 'visible';
+$(document).ready(function(){
+	$("#welcome").show();
+	// Kill Opera's backspace keyboard action.
+	document.onkeydown = document.onkeypress = function(e) { return $.hotkeys.specialKeys[e.keyCode] != "backspace"; };
 	initializeCLI();
 	scroller();
-}
+});

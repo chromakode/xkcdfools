@@ -14,6 +14,7 @@ p, pre, div, table { margin-bottom:1em; margin-top:0em; }
 pre, td, p { background-color:transparent; }
 code, p, span, td, th { font-size:1em; }
 p, div#display { margin-bottom:0; }
+div#welcome { display:none; }
 h1, h2, h3, h4, h5, h6 { background-color:#FFF; color:#000; }
 a, a:visited, .linky { color:#FFF; cursor:pointer; font-weight:bold; text-decoration:none; }
 a:hover, span.linky:hover, td.linky:hover { background-color:#FFF; color:#000; } /*you poor IE-using bastards*/
@@ -23,7 +24,7 @@ td { padding:0 1em 0 1em; }
 a#undercsr { font-weight:normal; /*text-decoration:underline;*/ }
 div#pagealert { background-color:#FFF; bottom:0px; bottom:2px; color:#000; left:2px; margin:0; padding:0; position:absolute; text-align:center; visibility:hidden; width:auto; }
 div#indicators { bottom:0px; bottom:2px; left:2px; margin:0; padding:0; position:absolute; text-align:center; }
-span#ALTindicator,span#CTRLindicator,span#SCRLOCKindicator { background-color:#FFF; color:#000; display:none; }
+div#indicators span { background-color:#FFF; color:#000; display:none; }
 div#spinnerdiv { bottom:2px; left:2px; margin:0; padding:0; position:absolute; text-align:center; }
 div#cform { height:1px; left:0; position:absolute; top:0; width:1px; }
 img { color:#FFF; font-size:x-small; } /* for broken images */
