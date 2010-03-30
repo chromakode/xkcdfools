@@ -467,6 +467,10 @@ function processInputBuffer(input) {
 	appendToDisplay("<p>" + promptText + prepareInputForDisplay(inputForDisplay) + '</p>');
 
 	input = trim(input);
+	
+	if (input.length == 0) {
+		return false;
+	}
 
 	/* for weird local-only interaction, maybe editor */
 	if (specialCommandHandler) {
