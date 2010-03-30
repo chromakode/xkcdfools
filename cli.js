@@ -1,4 +1,3 @@
-<?php
 /* 	
 	Client-side logic for Wordpress CLI theme
    R. McFarland, 2006, 2007, 2008
@@ -8,11 +7,6 @@
 	we set the link to the GUI version of the blog, if any. This is why 
 	we're serving a Javascript file via PHP.
 */
-session_start();
-require('../cli.conf.php');
-require(CLI_DIR.'/lib/utility.inc.php');
-header("Content-Type: text/javascript",true,200);
-?>
 var dbg=null;
 var displayElement 		= null;
 var screenElement 		= null;
@@ -36,7 +30,7 @@ var passwordInputMode=false;
 var historyArray 		= [];
 var historyIndex 		= 0;
 var clientSideCommandsEnabled 	= true;
-var promptText 			= "<?php echo defaultprompt(); ?>";
+var promptText 			= "guest@xkcd:/$";
 var eatIt 			= false; // eat next character input
 var spinnerCharacters 		= ['-', '\\', '|', '/'];
 var spinnerCharacterIndex 	= 0;
@@ -45,7 +39,7 @@ var stickyState 		= []; // for "sticky" modifier keys
 	stickyState.CTRL=false;
 	stickyState.ALT=false;
 var xmlhttp 			= false;
-var interpreter 		= "<?php echo CLI_URI ?>/interpret.php";
+var interpreter 		= "interpret.php";
 var requestId 			= 0;
 var firstCommand 		= true;
 var waitingForServer 		= false;
@@ -57,41 +51,45 @@ var scrollerThreadId 		= false;
 var waitingAtPage 		= false;
 var paging 			= true; // there's no option to turn this off in the options page, but you can chage it here. Make it false for no "--More--"
 var initialScreenOffsetHeight 	= false;
-var scrollStep 			= <?php echo get_option(THEME_OPTION_PREFIX.'scroll_step') ?>;
-
+var scrollStep 			= 2;
+var bg_color = "#000";
+var fg_color = "#FFF";
+var cursor_blink_time = 700;
+var cursor_style = "block";
+var gui_url = null;
 
 var ENTER 			= String.fromCharCode(13);
 var DOUBLE_QUOTE 		= String.fromCharCode(34);
 
 function cursorBlink(){
 	cursorState = 1 - cursorState;
-<?php if (get_option(THEME_OPTION_PREFIX.'cursor_style') == 'block') { ?>
-	if (cursorState == 1){
-		cursorElement.style.color = '<?php echo BG_COLOUR ?>';
-		cursorElement.style.backgroundColor = '<?php echo FG_COLOUR ?>';
+	if (cursor_style == 'block'){
+		if (cursorState == 1){
+			cursorElement.style.color = bg_color;
+			cursorElement.style.backgroundColor = fg_color;
+		}else{
+			cursorElement.style.color = fg_color;
+			cursorElement.style.backgroundColor = bg_color;
+		}
 	}else{
-		cursorElement.style.color = '<?php echo FG_COLOUR ?>';
-		cursorElement.style.backgroundColor = '<?php echo BG_COLOUR ?>';
+		if (cursorState == 1){
+			cursorElement.style.textDecoration = 'underline';
+		}else{
+			cursorElement.style.textDecoration = 'none';
+		}
 	}
-<?php }else{ ?>
-	if (cursorState == 1){
-		cursorElement.style.textDecoration = 'underline';
-	}else{
-		cursorElement.style.textDecoration = 'none';
-	}
-<?php } ?>
 }
 
 function initializeCLI(){
 	var b=document.getElementsByTagName('body').item(0);
 	if(navigator.appVersion.indexOf('AppleWebKit') > 0){
-		b.onkeypress=function(event){handleKeyEvent(event)};
+		b.onkeypress=function(event){handleKeyEvent(event);};
 		b.onkeydown=function(event){}; 
 		b.onkeyup=function(event){};
 	}else{
 		b.onkeypress=function(event){};
-		b.onkeydown=function(event){handleKeyEvent(event)}; 
-		b.onkeyup=function(event){handleKeyEvent(event)};
+		b.onkeydown=function(event){handleKeyEvent(event);}; 
+		b.onkeyup=function(event){handleKeyEvent(event);};
 	}	
 	screenElement 		= document.getElementById('scr');
 	displayElement 		= document.getElementById('display');
@@ -102,20 +100,9 @@ function initializeCLI(){
 	cursorElement 		= document.getElementById('undercsr');
 	rightOfCursorElement 	= document.getElementById('rcommand');
 	pageAlertElement	= document.getElementById('pagealert');
-	<?php if (get_option(THEME_OPTION_PREFIX.'cursor_blink_time') == 0){
-		if (get_option(THEME_OPTION_PREFIX.'cursor_style') == 'block'){
-	?>
-	cursorElement.style.color = '<?php echo BG_COLOUR ?>';
-	cursorElement.style.backgroundColor = '<?php echo FG_COLOUR ?>';
-	<?php	}else{ ?>
-	cursorElement.style.textDecoration = 'underline';
-	<?php	} 
-	}else{
-	?>
 	if (!cursorBlinkThreadId){
-		cursorBlinkThreadId = setInterval(cursorBlink,<?php echo get_option(THEME_OPTION_PREFIX.'cursor_blink_time'); ?>);
+		cursorBlinkThreadId = setInterval(cursorBlink, cursor_blink_time);
 	}
-	<?php } ?>
 	var frm 		= document.forms[0];
 	inputArea 		= frm.inputArea;
 	preInputArea 		= frm.preInputArea;
@@ -158,11 +145,11 @@ function prepareInputForDisplay(str){
 	str = str.replace(/</g,'&lt;');
 	str = str.replace(/>/g,'&gt;');
 	str = str.replace(/  /g,' &nbsp;');
-<?php if ($is_winIE){ ?>
-	str = str.replace("\n",'&nbsp;<br />');
-<?php }else{ ?>
-	str = str.replace(/\x0D/g,'&nbsp;<br />');
-<?php } ?>
+	if (/msie/i.test(navigator.userAgent)){
+		str = str.replace("\n",'&nbsp;<br />');
+	}else{
+		str = str.replace(/\x0D/g,'&nbsp;<br />');
+	}
 	return str;
 }
 
@@ -496,31 +483,13 @@ function processInputBuffer(input){
 				appendToDisplay(text);
 				return false;
 			}
-		//ADMIN
-			if (possibleCommand == 'admin' || possibleCommand == 'su'){
-				document.location.href = "<?php echo SITE_URI ?>/wp-admin/index.php";
-				return false;
-			}
-		<?php if ($username == 'guest'){ ?>
-		//LOGIN
-			if (possibleCommand == 'login'){
-				document.location.href = "<?php echo SITE_URI ?>/wp-login.php";
-				return false;
-			}
-		<?php }else{ ?>
-		//LOGOUT
-			if (possibleCommand == 'logout'){
-				document.location.href = "<?php echo SITE_URI ?>/wp-login.php?action=logout";
-				return false;
-			}
-		<?php } ?>
 		//STARTX
 			if (possibleCommand == 'gui'|| possibleCommand == 'startx'){
-		<?php if (get_option(THEME_OPTION_PREFIX.'gui_url')) { ?>
-				document.location.href = "<?php echo get_option(THEME_OPTION_PREFIX.'gui_url'); ?>";
-		<?php } else { ?>
-				alert('No GUI link configured!');
-		<?php } ?>
+				if (gui_url) {
+					document.location.href = gui_url;
+				} else {
+					alert('No GUI link configured!');
+				}
 				return false;
 			}
 	/* END LOCALLY EVALUATED COMMANDS */
