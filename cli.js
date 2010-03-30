@@ -30,7 +30,7 @@ var passwordInputMode = false;
 var historyArray = [];
 var historyIndex = 0;
 var clientSideCommandsEnabled = true;
-var promptText = "guest@xkcd:/$";
+var promptText = "guest@xkcd:/$ ";
 var eatIt = false; // eat next character input
 var spinnerCharacters = ['-', '\\', '|', '/'];
 var spinnerCharacterIndex = 0;
@@ -482,8 +482,8 @@ function processInputBuffer(input) {
 		}
 		var possibleCommand = input.toLowerCase(); /*LOCALLY EVALUATED COMMANDS */
 		//CLS
-		if (possibleCommand == 'cls' || possibleCommand == 'clear') {
-			displayElement.innerHTML = '';
+		if (possibleCommand == 'cls' || possibleCommand == 'clear' || possibleCommand == 'reset') {
+			displayElement.innerHTML = '<p></p>';
 			return false;
 		}
 		//HISTORY
@@ -507,8 +507,9 @@ function processInputBuffer(input) {
 			return false;
 		} /* END LOCALLY EVALUATED COMMANDS */
 	}
-	setPromptActive(false);
-	executeCommand("c=" + input, false);
+	/*setPromptActive(false);
+	executeCommand("c=" + input, false);*/
+	commandNotFound();
 	return false;
 }
 
@@ -559,6 +560,10 @@ function setcl(addend) {
 	cursorPosition = inputBuffer.length;
 	//updateInputDisplay();
 	processInputBuffer(inputBuffer);
+}
+
+function commandNotFound() {
+	appendToDisplay("<p>Unrecognized command. Type 'help' for assistance.</p>");
 }
 
 function stickyModifierKeys(key, evt) {
