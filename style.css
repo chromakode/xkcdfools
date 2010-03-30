@@ -7,13 +7,12 @@
 html, body { height:99%; }
 body { background-color:#000; font-family:"Courier New",Courier,monospace; margin:0 15px; overflow:hidden; padding:0; }
 pre, td, th, p, div { color:#FFF; font-family:"Courier New",Courier,monospace; font-size:1em; }
-div#scr { background-color:#000; height:99%; margin:2px; overflow:hidden; padding:0; }
-div#d_and_c { background-color:#000; margin:0; padding:0; }
-div#display { }
-p, pre, div, table { margin-bottom:1em; margin-top:0em; }
+div#screen { background-color:#000; height:99%; margin:2px; overflow:hidden; padding:0; }
+div, table { margin-bottom:1em; margin-top:0em; }
 pre, td, p { background-color:transparent; }
 code, p, span, td, th { font-size:1em; }
-p, div#display { margin-bottom:0; }
+p, div#display { margin:0; }
+div#screen p, div#screen span, div#screen a { white-space:pre; }
 div#welcome { display:none; }
 h1, h2, h3, h4, h5, h6 { background-color:#FFF; color:#000; }
 a, a:visited, .linky { color:#FFF; cursor:pointer; font-weight:bold; text-decoration:none; }
@@ -21,11 +20,11 @@ a:hover, span.linky:hover, td.linky:hover { background-color:#FFF; color:#000; }
 table { border-collapse:collapse; }
 td { padding:0 1em 0 1em; }
 .stealth { background-color:#000; border:0px; color:#000; color:black; height:0px; width:0px; opacity:0; }
-a#undercsr { font-weight:normal; /*text-decoration:underline;*/ }
+a#cursor { font-weight:normal; background-color:#FFF; color:#000; /*text-decoration:underline;*/ }
 div#pagealert { background-color:#FFF; bottom:0px; bottom:2px; color:#000; left:2px; margin:0; padding:0; position:absolute; text-align:center; visibility:hidden; width:auto; }
 div#indicators { bottom:0px; bottom:2px; left:2px; margin:0; padding:0; position:absolute; text-align:center; }
 div#indicators span { background-color:#FFF; color:#000; display:none; }
-div#spinnerdiv { bottom:2px; left:2px; margin:0; padding:0; position:absolute; text-align:center; }
+div#spinnerdiv { bottom:2px; left:2px; margin:0; padding:0; position:absolute; text-align:center; display:none; font-weight:bold; }
 div#cform { height:1px; left:0; position:absolute; top:0; width:1px; }
 img { color:#FFF; font-size:x-small; } /* for broken images */
 form#searchform input[type=text] { background-color:#000; border:1px solid #FFF; color:#FFF; font-family:"Courier New",Courier,monospace; width:100px; }

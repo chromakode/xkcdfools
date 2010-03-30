@@ -3,73 +3,8 @@
  R. McFarland, 2006, 2007, 2008
  http://thrind.xamai.ca/
  */
-var dbg = null;
-var displayElement = null;
-var screenElement = null;
-var promptElement = null;
-var spinnerElement = null;
-var bottomlineElement = null;
-var leftOfCursorElement = null;
-var cursorElement = null;
-var rightOfCursorElement = null;
-var pageAlertElement = null;
-var inputBuffer = '';
-var cursorPosition = 0;
-var cursorBlinkThreadId = false;
-var multilineMode = false;
-var specialCommandHandler = false;
-var specialCommandHandlerCode = false;
-var passwordInputMode = false;
-var historyArray = [];
-var historyIndex = 0;
-var clientSideCommandsEnabled = true;
-var promptText = "guest@xkcd:/$&nbsp;";
-var eatIt = false; // eat next character input
+
 var spinnerCharacters = ['-', '\\', '|', '/'];
-var spinnerCharacterIndex = 0;
-var spinnerThreadId = false;
-var stickyState = {ctrl: false, alt: false, scroll: false}; // for "sticky" modifier keys
-var xmlhttp = false;
-var interpreter = "interpret.php";
-var requestId = 0;
-var firstCommand = true;
-var waitingForServer = false;
-var savedDisplayHTML = false;
-var cursorState = 1;
-var scrLock = false;
-var targetHeight = false;
-var scrollerThreadId = false;
-var waitingAtPage = false;
-var paging = true; // there's no option to turn this off in the options page, but you can chage it here. Make it false for no "--More--"
-var initialScreenOffsetHeight = false;
-var scrollStep = 10;
-var bg_color = "#000";
-var fg_color = "#FFF";
-var cursor_blink_time = 700;
-var cursor_style = "block";
-var gui_url = null;
-
-var ENTER = String.fromCharCode(13);
-var DOUBLE_QUOTE = String.fromCharCode(34);
-
-function cursorBlink() {
-	cursorState = 1 - cursorState;
-	if (cursor_style == 'block') {
-		if (cursorState == 1) {
-			cursorElement.style.color = bg_color;
-			cursorElement.style.backgroundColor = fg_color;
-		} else {
-			cursorElement.style.color = fg_color;
-			cursorElement.style.backgroundColor = bg_color;
-		}
-	} else {
-		if (cursorState == 1) {
-			cursorElement.style.textDecoration = 'underline';
-		} else {
-			cursorElement.style.textDecoration = 'none';
-		}
-	}
-}
 
 /**** start from http://snippets.dzone.com/posts/show/701 ****/
 // Removes leading whitespaces
@@ -78,7 +13,7 @@ function cursorBlink() {
 function ltrim(value) {
 	if (value) {
 		var re = /\s*((\S+\s*)*)/;
-		return value.replace(re, "$1");
+		return value.replace(re, '$1');
 	}
 	return '';
 }
@@ -89,7 +24,7 @@ function ltrim(value) {
 function rtrim(value) {
 	if (value) {
 		var re = /((\s*\S+)*)\s*/;
-		return value.replace(re, "$1");
+		return value.replace(re, '$1');
 	}
 	return '';
 }
@@ -104,241 +39,375 @@ function trim(value) {
 	return '';
 } /**** end from http://snippets.dzone.com/posts/show/701 ****/
 
-function prepareInputForDisplay(str) {
-	str = str.replace(/&/g, '&amp;'); // keep first
+function entityEncode(str) {
+	str = str.replace(/&/g, '&amp;');
 	str = str.replace(/</g, '&lt;');
 	str = str.replace(/>/g, '&gt;');
 	str = str.replace(/  /g, ' &nbsp;');
 	if (/msie/i.test(navigator.userAgent)) {
-		str = str.replace("\n", '&nbsp;<br />');
+		str = str.replace('\n', '&nbsp;<br />');
 	} else {
 		str = str.replace(/\x0D/g, '&nbsp;<br />');
 	}
 	return str;
 }
 
-function updateInputDisplay() {
-	var left = '',
-		underCursor = ' ',
-		right = '';
-	if (trim(inputBuffer) === '') {
-		inputBuffer = '';
+var TerminalCommands = {
+	ls: function ls(which) {
+		executeCommand('c=ls ' + which, false);
+	},
+	help: function help(what) {
+		executeCommand('c=help ' + what, false);
 	}
-	if (cursorPosition < 0) {
-		cursorPosition = 0;
-	}
-	if (cursorPosition > inputBuffer.length) {
-		cursorPosition = inputBuffer.length;
-	}
-	if (cursorPosition > 0) {
-		left = inputBuffer.substr(0, cursorPosition);
-	}
-	if (cursorPosition < inputBuffer.length) {
-		underCursor = inputBuffer.substr(cursorPosition, 1);
-	}
-	if (inputBuffer.length - cursorPosition > 1) {
-		right = inputBuffer.substr(cursorPosition + 1, inputBuffer.length - cursorPosition - 1);
-	}
+};
 
-	leftOfCursorElement.innerHTML = prepareInputForDisplay(left);
-	cursorElement.innerHTML = prepareInputForDisplay(underCursor);
-	if (underCursor == ' ') {
-			cursorElement.innerHTML = '&nbsp;';
-		}
-	rightOfCursorElement.innerHTML = prepareInputForDisplay(right);
-	promptElement.innerHTML = promptText;
-	return;
-}
-
-function clearInputBuffer() {
-	inputBuffer = '';
-	cursorPosition = 0;
-	updateInputDisplay();
-}
-
-function setPromptActive(active) {
-	if (active) {
-		bottomlineElement.style.visibility = 'visible';
+var Terminal = {
+	buffer: '',
+	pos: 0,
+	history: [],
+	historyPos: 0,
+	promptActive: true,
+	cursorBlinkState: true,
+	_cursorBlinkTimeout: null,
+	
+	config: {
+		scrollStep: 		20,
+		scrollSpeed:		100,
+		bg_color: 			'#000',
+		fg_color: 			'#FFF',
+		cursor_blink_time: 	700,
+		cursor_style: 		'block',
+		prompt:				'guest@xkcd:/$ '
+	},
+	
+	sticky: {
+		keys: {
+			ctrl: false,
+			alt: false,
+			scroll: false
+		},
 		
-		return true;
-	} else {
-		bottomlineElement.style.visibility = 'hidden';
-		return false;
-	}
-}
-
-function pageAlert(active) {
-	waitingAtPage = active;
-	if (active) {
-		pageAlertElement.style.visibility = 'visible';
-	} else {
-		pageAlertElement.style.visibility = 'hidden';
-	}
-}
-
-function jumpToBottom() {
-	screenElement.scrollTop = screenElement.scrollHeight - screenElement.offsetHeight;
+		set: function(key, state) {
+			this.keys[key] = state;
+			$('#'+key+'-indicator').toggle(this.keys[key]);
+		},
+		
+		toggle: function(key) {
+			this.set(key, !this.keys[key]);
+		},
+		
+		reset: function(key) {
+			this.set(key, false);
+		},
+		
+		resetAll: function(key) {
+			$.each(this.keys, $.proxy(function(name, value) {
+				this.reset(name);
+			}, this));
+		}
+	},
 	
-}
+	init: function() {
+		$(document)
+			.keypress($.proxy(function(e) {	
+				if (!this.promptActive) {
+					return;
+				}
+				
+				if (e.which >= 32 && e.which <= 126) {   
+					var character = String.fromCharCode(e.which);
+				} else {
+					return;
+				}
+				letter = character.toLowerCase();
+				
+				if ($.browser.opera && !(/[\w\s]/.test(character))) {
+					return; // sigh.
+				}
+				
+				if (this.sticky.keys.ctrl) {
+					if (letter == 'w') {
+						this.deleteWord();
+					} else if (letter == 'h') {
+						Terminal.deleteCharacter(false);
+					} else if (letter == 'l') {
+						$("#display").html('');
+					} else if (letter == 'a') {
+						this.setPos(0);
+					} else if (letter == 'e') {
+						this.setPos(this.buffer.length);
+					}
+				} else if (this.sticky.keys.alt) {
+					
+				} else {
+					if (character) {
+						this.addCharacter(character);
+					}
+				}
+			}, this))
+			.bind('keydown', 'return', function(e) { Terminal.processInputBuffer(); })
+			.bind('keydown', 'backspace', function(e) { e.preventDefault();	Terminal.deleteCharacter(e.shiftKey); })
+			.bind('keydown', 'del', function(e) { Terminal.deleteCharacter(true); })
+			.bind('keydown', 'left', function(e) { Terminal.moveCursor(-1); })
+			.bind('keydown', 'right', function(e) { Terminal.moveCursor(1); })
+			.bind('keydown', 'up', function(e) {
+				e.preventDefault();
+				if (e.shiftKey || Terminal.sticky.keys.scroll) {
+					Terminal.scrollLine(-1);
+				} else if (e.ctrlKey || Terminal.sticky.keys.ctrl) {
+					Terminal.scrollPage(-1);
+				} else {
+					Terminal.moveHistory(-1);
+				}
+			})
+			.bind('keydown', 'down', function(e) {
+				e.preventDefault();
+				if (e.shiftKey || Terminal.sticky.keys.scroll) {
+					Terminal.scrollLine(1);
+				} else if (e.ctrlKey || Terminal.sticky.keys.ctrl) {
+					Terminal.scrollPage(1);
+				} else {
+					Terminal.moveHistory(1);
+				}
+			})
+			.bind('keydown', 'pageup', function(e) { Terminal.scrollPage(-1); })
+			.bind('keydown', 'pagedown', function(e) { Terminal.scrollPage(1); })
+			.bind('keydown', 'home', function(e) {
+				e.preventDefault();
+				if (e.ctrlKey || Terminal.sticky.keys.ctrl) {
+					Terminal.jumpToTop();
+				} else {
+					Terminal.setPos(0);
+				}
+			})
+			.bind('keydown', 'end', function(e) {
+				e.preventDefault();
+				if (e.ctrlKey || Terminal.sticky.keys.ctrl) {
+					Terminal.jumpToBottom();
+				} else {
+					Terminal.setPos(Terminal.buffer.length);
+				}
+			})
+			.keyup(function(e) {
+				var keyName = $.hotkeys.specialKeys[e.which];
+				if (keyName in {'ctrl':true, 'alt':true, 'scroll':true}) {
+					Terminal.sticky.toggle(keyName);
+				} else {
+					Terminal.sticky.resetAll();
+				}
+			});
 
-function jumpToTop() {
-	screenElement.scrollTop = screenElement.offsetHeight;
+		this.setCursorState(true);
+		$('#prompt').html(this.config.prompt);
+		$('#screen').hide().fadeIn();
+	},
 	
-}
-
-function backgroundScroller() {
-	//	topofscreentotopofviewport	= screenElement.scrollTop;
-	// +	viewportheight			= screenElement.offsetHeight;
-	// <=	fullheight			= screenElement.scrollHeight;
-	if (scrollStep > 0 && (screenElement.scrollHeight - screenElement.offsetHeight > screenElement.scrollTop + scrollStep)) {
-		if (!targetHeight || initialScreenOffsetHeight != screenElement.offsetHeight) {
-			initialScreenOffsetHeight = screenElement.offsetHeight;
-			if (paging) {
-				targetHeight = Math.min(screenElement.scrollTop + screenElement.offsetHeight - 40, screenElement.scrollHeight);
+	setCursorState: function(state) {
+		this.cursorBlinkState = state;
+		if (this.config.cursor_style == 'block') {
+			if (state) {
+				$('#cursor').css({color:this.config.bg_color, backgroundColor:this.config.fg_color});
 			} else {
-				targetHeight = screenElement.scrollHeight;
+				$('#cursor').css({color:this.config.fg_color, backgroundColor:this.config.bg_color});
+			}
+		} else {
+			if (state) {
+				$('#cursor').css('textDecoration', 'underline');
+			} else {
+				$('#cursor').css('textDecoration', 'none');
 			}
 		}
-		if (screenElement.scrollTop < targetHeight) {
-			screenElement.scrollTop += scrollStep;
-			scrollerThreadId = setTimeout(backgroundScroller, 10);
-			return;
-		} else {
-			targetHeight = false;
-			scrollerThreadId = false;
-			pageAlert(true);
+		
+		// (Re)schedule next blink.
+		if (this._cursorBlinkTimeout) {
+			window.clearTimeout(this._cursorBlinkTimeout);
+			this._cursorBlinkTimeout = null;
 		}
-	} else {
-		screenElement.scrollTop = screenElement.scrollHeight - screenElement.offsetHeight;
-		targetHeight = false;
-		scrollerThreadId = false;
-		pageAlert(false);
-		jumpToBottom();
-	}
-}
+		this._cursorBlinkTimeout = window.setTimeout($.proxy(function() {
+			this.setCursorState(!this.cursorBlinkState);
+		},this), this.config.cursor_blink_time);
+	},
+	
+	updateInputDisplay: function() {
+		var left = '', underCursor = ' ', right = '';
 
-function scroller() {
-	initialScreenOffsetHeight = screenElement.offsetHeight;
-	if (!waitingAtPage && !scrollerThreadId) {
-		scrollerThreadId = setTimeout(backgroundScroller, 10);
-	}
-	return;
-}
-
-function appendToDisplay(html) {
-	displayElement.innerHTML += html;
-	scroller();
-}
-
-function displayFromXML(xdisplayData) {
-	var html = '';
-	for (var i = 0; i < xdisplayData.length; i++) {
-		if (xdisplayData[i].firstChild) {
-			html += xdisplayData[i].firstChild.data;
+		if (this.pos < 0) {
+			this.pos = 0;
 		}
-	}
-	appendToDisplay(html);
-}
-
-function initializeSpecialCommandHandler(xspecialCommandHandler) {
-	for (var i = 0; i < xspecialCommandHandler.length; i++) {
-		if (xspecialCommandHandler[i].firstChild) {
-			specialCommandHandlerCode += xspecialCommandHandler[i].firstChild.data;
+		if (this.pos > this.buffer.length) {
+			this.pos = this.buffer.length;
 		}
-	}
-	if (specialCommandHandlerCode == '0') {
-		specialCommandHandler = false;
-		specialCommandHandlerCode = false;
-	} else {
-		specialCommandHandler = function (input) {
-			eval(specialCommandHandlerCode);
+		if (this.pos > 0) {
+			left = this.buffer.substr(0, this.pos);
+		}
+		if (this.pos < this.buffer.length) {
+			underCursor = this.buffer.substr(this.pos, 1);
+		}
+		if (this.buffer.length - this.pos > 1) {
+			right = this.buffer.substr(this.pos + 1, this.buffer.length - this.pos - 1);
+		}
+
+		$('#lcommand').text(left);
+		$('#cursor').text(underCursor);
+		if (underCursor == ' ') {
+			$('#cursor').html('&nbsp;');
+		}
+		$('#rcommand').text(right);
+		$('#prompt').text(this.config.prompt);
+		return;
+	},
+	
+	clearInputBuffer: function() {
+		this.buffer = '';
+		this.pos = 0;
+		this.updateInputDisplay();
+	},
+	
+	addCharacter: function(character) {
+		var left = this.buffer.substr(0, this.pos);
+		var right = this.buffer.substr(this.pos, this.buffer.length - this.pos);
+		this.buffer = left + character + right;
+		this.pos++;
+		this.updateInputDisplay();
+		this.setCursorState(true);
+	},
+	
+	deleteCharacter: function(forward) {
+		var offset = forward ? 1 : 0;
+		if (this.pos > 0) {
+			var left = this.buffer.substr(0, this.pos - 1 + offset);
+			var right = this.buffer.substr(this.pos + offset, this.buffer.length - this.pos - offset);
+			this.buffer = left + right;
+			this.pos -= 1 - offset;
+			this.updateInputDisplay();
+		}
+		this.setCursorState(true);
+	},
+	
+	deleteWord: function() {
+		if (this.pos > 0) {
+			var ncp = this.pos;
+			while (ncp > 0 && this.buffer.charAt(ncp) !== ' ') {
+				ncp--;
+			}
+			left = this.buffer.substr(0, ncp - 1);
+			right = this.buffer.substr(ncp, this.buffer.length - this.pos);
+			this.buffer = left + right;
+			this.pos = ncp;
+			this.updateInputDisplay();
+		}
+		this.setCursorState(true);
+	},
+	
+	moveCursor: function(val) {
+		this.setPos(this.pos + val);
+	},
+	
+	setPos: function(pos) {
+		if ((pos >= 0) && (pos <= this.buffer.length)) {
+			this.pos = pos;
+			Terminal.updateInputDisplay();
+		}
+		this.setCursorState(true);
+	},
+	
+	moveHistory: function(val) {
+		var newpos = this.historyPos + val;
+		if ((newpos >= 0) && (newpos <= this.history.length)) {
+			if (newpos == this.history.length) {
+				this.clearInputBuffer();
+			} else {
+				this.buffer = this.history[newpos];
+			}
+			this.pos = this.buffer.length;
+			this.historyPos = newpos;
+			this.updateInputDisplay();
+			this.jumpToBottom();
+		}
+		this.setCursorState(true);
+	},
+	
+	addHistory: function(cmd) {
+		this.historyPos = this.history.push(cmd);
+	},
+
+	setPromptActive: function(active) {
+		this.promptActive = active;
+		$('bottomline').toggle(this.promptActive);
+	},
+
+	jumpToBottom: function() {
+		$('#screen').animate({scrollTop: $('#screen').attr("scrollHeight")}, this.config.scrollSpeed, 'linear');
+	},
+
+	jumpToTop: function() {
+		$('#screen').animate({scrollTop: 0}, this.config.scrollSpeed, 'linear');
+	},
+	
+	scrollPage: function(num) {
+		$('#screen').animate({scrollTop: $('#screen').scrollTop() + num * $('#screen').height()}, this.config.scrollSpeed, 'linear');
+	},
+
+	scrollLine: function(num) {
+		$('#screen').scrollTop($('#screen').scrollTop() + num * this.config.scrollStep);
+	},
+
+	print: function(text) {
+		$('#display').append($('<p>').text(text));
+		this.jumpToBottom();
+	},
+	
+	processInputBuffer: function() {
+		this.print(this.config.prompt + this.buffer);
+		var cmd = trim(this.buffer);
+		this.clearInputBuffer();
+		if (cmd.length == 0) {
 			return false;
-		};
-		specialCommandHandler('__INIT__');
-	}
-}
-
-function handleServerXML(xml) {
-	if (!xml) {
+		}
+		this.addHistory(cmd);
+		this.commandNotFound();
 		return false;
+	},
+	
+	commandNotFound: function() {
+		this.print('Unrecognized command. Type "help" for assistance.');
 	}
-	var xmlDocumentElement = xml.documentElement;
-	if (!xmlDocumentElement) {
-		return false;
-	}
-	/* 
-	 //for some weird-ass reason some people's servers are responding with empty responseId's
-	 xresponseId = xmlDocumentElement.getElementsByTagName('responseId');
-	 if (xresponseId.length == 0 || (xresponseId[0].getAttribute('value') != requestId)){ 
-	 // to avoid confusion with slow-arriving results
-	 alert('Out-of-order or malformed server response');
-	 return false;
-	 }
-	 */
-	var xmultilineMode = xmlDocumentElement.getElementsByTagName('multiline');
-	if (xmultilineMode.length > 0 && xmultilineMode[0].getAttribute('value') == "1") {
-		multilineMode = true;
-	}
+};
 
-	var xclientSideCommandsEnabled = xmlDocumentElement.getElementsByTagName('clientsidecommands');
-	if (xclientSideCommandsEnabled.length > 0 && xclientSideCommandsEnabled[0].getAttribute('value') == "off") {
-		clientSideCommandsEnabled = false;
+/*if (clientSideCommandsEnabled) { 
+if (cmd !== '') {
+	historyArray[historyArray.length] = cmd;
+	historyIndex = historyArray.length;
+}
+var possibleCommand = cmd.toLowerCase(); 
+//CLS
+if (possibleCommand == 'cls' || possibleCommand == 'clear' || possibleCommand == 'reset') {
+	displayElement.innerHTML = '<p></p>';
+	return false;
+}
+//HISTORY
+if (possibleCommand == 'history') {
+	var text = '<p>';
+	for (i = 0; i < historyArray.length; i++) {
+		text += '<span class="linky" onclick="executeCommand(\'c=' + historyArray[i] + '\',false);">';
+		text += historyArray[i] + '</span><br />';
+	}
+	text += '</p>';
+	appendToDisplay(text);
+	return false;
+}
+//STARTX
+if (possibleCommand == 'gui' || possibleCommand == 'startx') {
+	if (gui_url) {
+		document.location.href = gui_url;
 	} else {
-		clientSideCommandsEnabled = true;
+		alert('No GUI link configured!');
 	}
+	return false;
+}  END LOCALLY EVALUATED COMMANDS */
 
-	var xcommandlineData = xmlDocumentElement.getElementsByTagName('commandline');
-	if (xcommandlineData.length > 0) {
-		inputBuffer = xcommandlineData[0].firstChild.data;
-		cursorPosition = inputBuffer.length;
-	} else {
-		inputBuffer = '';
-		cursorPosition = 0;
-	}
-
-	var xprompt = xmlDocumentElement.getElementsByTagName('prompt');
-	if (xprompt && xprompt[0]) {
-		promptText = xprompt[0].firstChild.data;
-	}
-
-	var xdisplayData = xmlDocumentElement.getElementsByTagName('display');
-	if (xdisplayData.length > 0) {
-		displayFromXML(xdisplayData);
-	}
-
-	var xspecialCommandHandler = xmlDocumentElement.getElementsByTagName('specialcommandhandler');
-	if (xspecialCommandHandler.length > 0) {
-		initializeSpecialCommandHandler(xspecialCommandHandler);
-	}
-
-	updateInputDisplay();
-	return true;
-}
-
-function createXMLHTTP() { /* I stole this from somebody a long time ago. Sorry, somebody. */
-	/*@cc_on @*/
-	/*@if (@_jscript_version >= 5)
-	 try {
-	 xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
-	 } catch (e) {
-	 try {
-	 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-	 } catch (E) {
-	 xmlhttp = false;
-	 }
-	 }
-	 @end @*/
-	if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
-		xmlhttp = new XMLHttpRequest();
-	}
-}
-
-function prepareURI(what) {
-	what = encodeURI(what);
-	what = what.replace(/&amp;/g, '%26');
-	what = what.replace(/&lt;/g, '<');
-	return what;
-}
+/*setPromptActive(false);
+executeCommand('c=' + cmd, false);*/
 
 function busySpinner(active) {
 	if (active) {
@@ -357,526 +426,9 @@ function busySpinner(active) {
 	}
 }
 
-function executeCommand(getCommand, postData) {
-	multilineMode = false;
-	if (!xmlhttp) {
-		createXMLHTTP();
-	}
-	if (!xmlhttp) {
-		alert('Darn.');
-		return false;
-	}
-	if (firstCommand) {
-		firstCommand = false;
-	} else {
-		requestId = Math.round(Math.random() * 100000);
-	}
-	var url = interpreter + "?" + prepareURI(getCommand) + "&requestId=" + requestId + "&" + phpsessname + "=" + phpsessid;
-	if (postData) {
-		xmlhttp.open("POST", url, true);
-		xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	} else {
-		xmlhttp.open("GET", url, true);
-	}
-	xmlhttp.onreadystatechange = function () {
-		var xstate = xmlhttp.readyState;
-		if (xstate == 4 && xmlhttp.status == 200) {
-			waitingForServer = false;
-			busySpinner(false);
-			handleServerXML(xmlhttp.responseXML);
-			scroller();
-			setPromptActive(true);
-			return true;
-		}
-		return false;
-	};
-	waitingForServer = true;
-	busySpinner(true);
-	if (postData) {
-		xmlhttp.send(prepareURI(postData));
-	} else {
-		xmlhttp.send("");
-	}
-	return false;
-}
-
-commands = {
-	ls: function ls(which) {
-		executeCommand('c=ls ' + which, false);
-	},
-	help: function help(what) {
-		executeCommand('c=help ' + what, false);
-	}
-};
-
-function processInputBuffer(input) {
-	clearInputBuffer();
-
-	/* redisplay command in display div */
-	var inputForDisplay = input;
-	if (passwordInputMode) {
-		inputForDisplay = "";
-		for (var i = 0; i < input.length; i++) {
-			inputForDisplay += '*';
-		}
-	}
-	appendToDisplay("<p>" + promptText + prepareInputForDisplay(inputForDisplay) + '</p>');
-
-	input = trim(input);
-	
-	if (input.length == 0) {
-		return false;
-	}
-
-	/* for weird local-only interaction, maybe editor */
-	if (specialCommandHandler) {
-		specialCommandHandler(input);
-		setPromptActive(true);
-		return false;
-	}
-
-	if (clientSideCommandsEnabled) { /* add to history */
-		if (input !== '') {
-			historyArray[historyArray.length] = input;
-			historyIndex = historyArray.length;
-		}
-		var possibleCommand = input.toLowerCase(); /*LOCALLY EVALUATED COMMANDS */
-		//CLS
-		if (possibleCommand == 'cls' || possibleCommand == 'clear' || possibleCommand == 'reset') {
-			displayElement.innerHTML = '<p></p>';
-			return false;
-		}
-		//HISTORY
-		if (possibleCommand == 'history') {
-			var text = '<p>';
-			for (i = 0; i < historyArray.length; i++) {
-				text += '<span class="linky" onclick="executeCommand(\'c=' + historyArray[i] + '\',false);">';
-				text += historyArray[i] + '</span><br />';
-			}
-			text += '</p>';
-			appendToDisplay(text);
-			return false;
-		}
-		//STARTX
-		if (possibleCommand == 'gui' || possibleCommand == 'startx') {
-			if (gui_url) {
-				document.location.href = gui_url;
-			} else {
-				alert('No GUI link configured!');
-			}
-			return false;
-		} /* END LOCALLY EVALUATED COMMANDS */
-	}
-	/*setPromptActive(false);
-	executeCommand("c=" + input, false);*/
-	commandNotFound();
-	return false;
-}
-
-function scrollPage(mul) {
-	screenElement.scrollTop += mul * screenElement.offsetHeight;
-	return false;
-}
-
-function scrollLine(mul) {
-	screenElement.scrollTop += mul * scrollStep;
-	return false;
-}
-
-function setcl(addend) {
-	inputBuffer += addend;
-	cursorPosition = inputBuffer.length;
-	//updateInputDisplay();
-	processInputBuffer(inputBuffer);
-}
-
-function commandNotFound() {
-	appendToDisplay("<p>Unrecognized command. Type 'help' for assistance.</p>");
-}
-
-function toggleStickyModifierKey(key) {
-	var indicator;
-	stickyState[key] = !stickyState[key];
-	indicator = $("#"+key+"-indicator");
-	if (stickyState[key]) {
-		indicator.show();
-	} else {
-		indicator.hide();
-	}
-	return true;
-}
-
-function handleKeyEvent(e) {
-	if (waitingForServer) {
-		return rval;
-	}
-	
-	if (e.which >= 32 && e.which <= 126) {   
-		character = String.fromCharCode(e.which);
-		if (!(stickyState.CTRL || stickyState.ALT)) {
-			if (character) { // if it's a regular key
-				if (eatIt) {
-					character = '';
-					eatIt = false;
-				}
-				left = inputBuffer.substr(0, cursorPosition);
-				right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
-				inputBuffer = left + character + right;
-				cursorPosition++;
-				updateInputDisplay();
-			}
-		}
-	}
-	
-	return false;
-	
-	if (multilineMode) {
-		scroller();
-	}
-	if (character) {
-		keyName = character;
-	} else if (keycodes[keyCode]) { // in keycodes.js -- is named.
-		keyName = keycodes[keyCode];
-	} else {
-		return rval;
-	}
-
-	if (keyName == 'SHIFT') {
-		return rval;
-	}
-	if (keyName == 'ALT' || keyName == 'CTRL') {
-		toggleStickyModifierKey(keyName, e);
-		return rval;
-	}
-	if (e && ((e.type == 'keyup') || (e.type == 'keypress'))) {
-		return rval;
-	}
-	if (e && e.shiftKey) {
-		keyName = 'SHIFT_' + keyName;
-	}
-	if (stickyState.CTRL || stickyState.ALT) {
-		eatIt = true;
-		character = '';
-	}
-	if ((e && e.ctrlKey) || stickyState.CTRL) {
-		e.returnValue = false;
-		keyName = 'CTRL_' + keyName;
-		toggleStickyModifierKey('CTRL', null);
-	}
-	if ((e && e.altKey) || stickyState.ALT) {
-		e.returnValue = false;
-		keyName = 'ALT_' + keyName;
-		toggleStickyModifierKey('ALT', null);
-	}
-	if (keyName == 'ALT_CTRL_q') { // Wilkommen, Deutsches freunden
-		if (eatIt) {
-			character = '';
-			eatIt = false;
-		} else {
-			left = inputBuffer.substr(0, cursorPosition);
-			right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
-			inputBuffer = left + '@' + right;
-			cursorPosition++;
-			updateInputDisplay();
-			return rval;
-		}
-	}
-	if (keyName == 'BACKSPACE' || keyName == 'CTRL_h') { // ^h fires up the history pane in FF.
-		e.returnValue = false;
-		if (cursorPosition > 0) {
-			
-			left = inputBuffer.substr(0, cursorPosition - 1);
-			right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
-			inputBuffer = left + right;
-			cursorPosition--;
-			updateInputDisplay();
-		}
-		return false;
-	}
-
-	if (keyName == 'DEL' || keyName == 'SHIFT_BACKSPACE') {
-		e.returnValue = false;
-		if (cursorPosition < inputBuffer.length) {
-			left = inputBuffer.substr(0, cursorPosition);
-			right = inputBuffer.substr(cursorPosition + 1, inputBuffer.length - cursorPosition - 1);
-			inputBuffer = left + right;
-			updateInputDisplay();
-		}
-		return rval;
-	}
-	if (keyName == 'CTRL_c') {
-		if (specialCommandHandler) {
-			specialCommandHandler('__CANCEL__');
-		} else {
-			executeCommand('cancel=1', false);
-		}
-		clearInputBuffer();
-		return rval;
-	}
-
-	if (multilineMode) {
-		if (keyName == 'CTRL_x') { // end multilineMode input
-			if (specialCommandHandler) {
-				specialCommandHandler('__EXIT__');
-			} else {
-				executeCommand('c=', 'p=' + prepareURI(inputBuffer));
-			}
-			clearInputBuffer();
-			return rval;
-		}
-		if (keyName == 'UP') {
-			if (inputBuffer.charCodeAt(cursorPosition) == 13) {
-				cursorPosition++;
-			}
-			var previousNewline = inputBuffer.lastIndexOf(ENTER, cursorPosition - 1);
-			var previousPreviousNewline = inputBuffer.lastIndexOf(ENTER, previousNewline - 1);
-			if (previousNewline < 0) {
-				previousNewline = 0;
-				previousPreviousNewline = 0;
-			}
-			if (previousPreviousNewline < 0) {
-				previousPreviousNewline = 0;
-			}
-			cursorPosition = previousPreviousNewline + cursorPosition - previousNewline;
-			if (cursorPosition > previousNewline) {
-				cursorPosition = previousNewline - 1;
-			}
-			updateInputDisplay();
-			return rval;
-		}
-		if (keyName == 'DOWN') {
-			if (inputBuffer.charCodeAt(cursorPosition) == 13) {
-				cursorPosition--;
-			}
-			var previousNewline = Math.max(0, inputBuffer.lastIndexOf(ENTER, cursorPosition - 1));
-			var nextNewline = inputBuffer.indexOf(ENTER, cursorPosition + 1);
-			var nextNextNewline = inputBuffer.indexOf(ENTER, nextNewline + 1);
-			if (nextNewline < 0) {
-				nextNewline = inputBuffer.length;
-				nextNextNewline = nextNewline;
-			}
-			if (nextNextNewline < 0) {
-				nextNextNewline = inputBuffer.length;
-			}
-			cursorPosition = nextNewline + cursorPosition - previousNewline;
-			if (cursorPosition > nextNextNewline) {
-				cursorPosition = nextNextNewline;
-			}
-			updateInputDisplay();
-			return rval;
-		}
-		if (keyName == 'ENTER' || keyCode == 13) {
-			left = inputBuffer.substr(0, cursorPosition);
-			right = inputBuffer.substr(cursorPosition);
-			inputBuffer = left + ENTER + right;
-			cursorPosition++;
-			updateInputDisplay();
-			return rval;
-		}
-		if (keyName == 'CTRL_a' || keyName == 'HOME') {
-			if (inputBuffer.charCodeAt(cursorPosition) == 13) {
-				cursorPosition--;
-			}
-			var ocursorPosition = cursorPosition;
-			cursorPosition = inputBuffer.lastIndexOf(ENTER, cursorPosition) + 1;
-			if (cursorPosition >= ocursorPosition) {
-				cursorPosition = 0;
-			}
-			updateInputDisplay();
-			return rval;
-		}
-		if (keyName == 'CTRL_e' || keyName == 'END') {
-			if (inputBuffer.charCodeAt(cursorPosition) == 13) {
-				cursorPosition++;
-			}
-			var ocursorPosition = cursorPosition;
-			cursorPosition = inputBuffer.indexOf(ENTER, cursorPosition);
-			if (cursorPosition <= ocursorPosition) {
-				cursorPosition = inputBuffer.length;
-			}
-			updateInputDisplay();
-			return rval;
-		}
-		if (keyName == 'TAB') {
-			left = inputBuffer.substr(0, cursorPosition);
-			right = inputBuffer.substr(cursorPosition);
-			inputBuffer = left + '	' + right; // 4 spaces 
-			cursorPosition += 4;
-			updateInputDisplay();
-			return rval;
-		}
-	} else { //not multilineMode
-		if ((keyName == 'CTRL_a' || keyName == 'HOME') && cursorPosition > 0) {
-			cursorPosition = 0;
-			updateInputDisplay();
-			return rval;
-		}
-		if ((keyName == 'CTRL_e' || keyName == 'END') && cursorPosition < inputBuffer.length) {
-			cursorPosition = inputBuffer.length;
-			updateInputDisplay();
-			return rval;
-		}
-		if (keyName == 'CTRL_l') { // well, maybe some browser catches it
-			displayElement.innerHTML = '';
-			return rval;
-		}
-		if (keyName == 'SCRLOCK') {
-			scrLock = !scrLock;
-			document.getElementById('SCRLOCKindicator').style.display = (scrLock ? 'inline' : 'none');
-		}
-		if (keyName == 'UP' || keyName == 'SHIFT_UP') {
-			if (scrLock || keyName == 'SHIFT_UP') {
-				scrollLine(-1);
-			} else if (historyIndex > 0) {
-				historyIndex--;
-				inputBuffer = historyArray[historyIndex];
-				cursorPosition = inputBuffer.length;
-				updateInputDisplay();
-				jumpToBottom();
-			}
-			return rval;
-		}
-		if (keyName == 'DOWN' || keyName == 'SHIFT_DOWN') {
-			if (scrLock || keyName == 'SHIFT_DOWN') {
-				scrollLine(1);
-			} else if (historyIndex < historyArray.length) {
-				if (historyIndex == historyArray.length - 1) {
-					historyIndex = historyArray.length;
-					clearInputBuffer();
-				} else {
-					inputBuffer = historyArray[++historyIndex];
-				}
-				cursorPosition = inputBuffer.length;
-				updateInputDisplay();
-				jumpToBottom();
-			}
-			return rval;
-		}
-		if (keyName == 'PGUP' || keyName == 'CTRL_UP') {
-			scrollPage(-1);
-			return rval;
-		}
-		if (keyName == 'PGDN' || keyName == 'CTRL_DOWN') {
-			scrollPage(1);
-			return rval;
-		}
-		if (keyName == 'CTRL_HOME') {
-			jumpToTop();
-			return rval;
-		}
-		if (keyName == 'CTRL_END') {
-			jumpToBottom();
-			return rval;
-		}
-		if (keyName == 'TAB') {
-			executeCommand('tc=' + inputBuffer, false); // tab completion
-			return rval;
-		}
-		if (keyName == 'SHIFT_TAB') {
-			return rval;
-		}
-		if (keyName == 'ENTER' || keyCode == 13) {
-			processInputBuffer(inputBuffer);
-			return rval;
-		}
-	}
-	return rval;
-}
-
-function initializeCLI() {
-	$(document)
-		.keypress(function(e) {
-			if (e.which >= 32 && e.which <= 126) {   
-				character = String.fromCharCode(e.which);
-				if (!(stickyState.ctrl || stickyState.alt)) {
-					if ($.browser.opera && $.hotkeys.specialKeys[e.which]
-					                       in {left:true, up:true, right:true, down:true} ) {
-						return // sigh.
-					}
-					if (character) {
-						if (eatIt) {
-							character = '';
-							eatIt = false;
-						}
-						left = inputBuffer.substr(0, cursorPosition);
-						right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
-						inputBuffer = left + character + right;
-						cursorPosition++;
-						updateInputDisplay();
-					}
-				} else if (stickyState.ctrl) {
-					if (character == "w") {
-						if (cursorPosition > 0) {
-							var ncp = cursorPosition;
-							while (ncp > 0 && inputBuffer.charAt(ncp) !== ' ') {
-								ncp--;
-							}
-							left = inputBuffer.substr(0, ncp - 1);
-							right = inputBuffer.substr(ncp, inputBuffer.length - cursorPosition);
-							inputBuffer = left + right;
-							cursorPosition = ncp;
-							updateInputDisplay();
-						}
-						toggleStickyModifierKey("ctrl");						
-					}
-					
-				} else if (stickyState.alt) {
-					
-				}
-			}
-		})
-		.bind("keydown", "backspace", function(e) {
-			e.preventDefault();
-			if (cursorPosition > 0) {
-				left = inputBuffer.substr(0, cursorPosition - 1);
-				right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
-				inputBuffer = left + right;
-				cursorPosition--;
-				updateInputDisplay();
-			}
-		})
-		.bind("keydown", "ctrl", function(e) { toggleStickyModifierKey("ctrl"); })
-		.bind("keydown", "alt", function(e) { toggleStickyModifierKey("alt"); })
-		.bind("keydown", "scroll", function(e) { toggleStickyModifierKey("scroll"); })
-		.bind("keydown", "left", function(e) {
-			e.stopPropagation();
-			if (cursorPosition > 0) {
-				cursorPosition--;
-				updateInputDisplay();
-			}
-		})
-		.bind("keydown", "right", function(e) {
-			e.stopPropagation();
-			if (cursorPosition < inputBuffer.length) {
-				cursorPosition++;
-				updateInputDisplay();
-			}
-		});
-	screenElement = document.getElementById('scr');
-	displayElement = document.getElementById('display');
-	spinnerElement = document.getElementById('spinnerdiv');
-	promptElement = document.getElementById('prompt');
-	bottomlineElement = document.getElementById('bottomline');
-	leftOfCursorElement = document.getElementById('lcommand');
-	cursorElement = document.getElementById('undercsr');
-	rightOfCursorElement = document.getElementById('rcommand');
-	pageAlertElement = document.getElementById('pagealert');
-	if (!cursorBlinkThreadId) {
-		cursorBlinkThreadId = setInterval(cursorBlink, cursor_blink_time);
-	}
-
-	promptElement.innerHTML = promptText;
-	screenElement.scrollTop = 1;
-
-	spacerElement = document.createElement("div");
-	spacerElement.style.height = screenElement.offsetHeight + "px";
-	displayElement.insertBefore(spacerElement, displayElement.firstChild);
-}
-
 $(document).ready(function(){
-	$("#welcome").show();
+	$('#welcome').show();
 	// Kill Opera's backspace keyboard action.
-	document.onkeydown = document.onkeypress = function(e) { return $.hotkeys.specialKeys[e.keyCode] != "backspace"; };
-	initializeCLI();
-	scroller();
+	document.onkeydown = document.onkeypress = function(e) { return $.hotkeys.specialKeys[e.keyCode] != 'backspace'; };
+	Terminal.init();
 });
