@@ -80,43 +80,6 @@ function cursorBlink() {
 	}
 }
 
-function initializeCLI() {
-	var b = document.getElementsByTagName('body').item(0);
-	/*if (navigator.appVersion.indexOf('WebKit') > 0) {
-		b.onkeypress = handleKeyEvent;
-		b.onkeydown = function (event) {};
-		b.onkeyup = function (event) {};
-	} else {*/
-	b.onkeypress = function (event) {};
-	b.addEventListener("keydown", handleKeyEvent, false);
-	b.addEventListener("keyup", handleKeyEvent, false);
-	/*}*/
-	screenElement = document.getElementById('scr');
-	displayElement = document.getElementById('display');
-	spinnerElement = document.getElementById('spinnerdiv');
-	promptElement = document.getElementById('prompt');
-	bottomlineElement = document.getElementById('bottomline');
-	leftOfCursorElement = document.getElementById('lcommand');
-	cursorElement = document.getElementById('undercsr');
-	rightOfCursorElement = document.getElementById('rcommand');
-	pageAlertElement = document.getElementById('pagealert');
-	if (!cursorBlinkThreadId) {
-		cursorBlinkThreadId = setInterval(cursorBlink, cursor_blink_time);
-	}
-	var frm = document.forms[0];
-	inputArea = frm.inputArea;
-	preInputArea = frm.preInputArea;
-	postInputArea = frm.postInputArea;
-	promptElement.innerHTML = promptText;
-	screenElement.scrollTop = 1;
-
-	spacerElement = document.createElement("div");
-	spacerElement.style.height = screenElement.offsetHeight + "px";
-	displayElement.insertBefore(spacerElement, displayElement.firstChild);
-
-	inputArea.focus();
-}
-
 /**** start from http://snippets.dzone.com/posts/show/701 ****/
 // Removes leading whitespaces
 
@@ -447,6 +410,15 @@ function executeCommand(getCommand, postData) {
 	return false;
 }
 
+commands = {
+	ls: function ls(which) {
+		executeCommand('c=ls ' + which, false);
+	},
+	help: function help(what) {
+		executeCommand('c=help ' + what, false);
+	}
+}
+
 function processInputBuffer(input) {
 	clearInputBuffer();
 
@@ -519,38 +491,6 @@ function scrollPage(mul) {
 function scrollLine(mul) {
 	screenElement.scrollTop += mul * scrollStep;
 	return false;
-}
-
-function showpost(which) {
-	if (which == 'latest') {
-		executeCommand('c=latest', false);
-	} else {
-		executeCommand('c=cat ' + which, false);
-	}
-}
-
-function ls(which) {
-	executeCommand('c=ls ' + which, false);
-}
-
-function help(what) {
-	executeCommand('c=help ' + what, false);
-}
-
-function autosearch(which) {
-	executeCommand('c=grep ' + which, false);
-}
-
-function showcomments() {
-	executeCommand('c=comments', false);
-}
-
-function showcat(which) {
-	executeCommand('c=category ' + which, false);
-}
-
-function telnet(which) {
-	executeCommand('c=telnet ' + which, false);
 }
 
 function setcl(addend) {
@@ -933,6 +873,43 @@ function handleKeyEvent(e) {
 }
 if (document.captureEvents && Event.KEYUP) {
 	document.captureEvents(Event.KEYUP);
+}
+
+function initializeCLI() {
+	var b = document.getElementsByTagName('body').item(0);
+	/*if (navigator.appVersion.indexOf('WebKit') > 0) {
+		b.onkeypress = handleKeyEvent;
+		b.onkeydown = function (event) {};
+		b.onkeyup = function (event) {};
+	} else {*/
+	b.onkeypress = function (event) {};
+	b.addEventListener("keydown", handleKeyEvent, false);
+	b.addEventListener("keyup", handleKeyEvent, false);
+	/*}*/
+	screenElement = document.getElementById('scr');
+	displayElement = document.getElementById('display');
+	spinnerElement = document.getElementById('spinnerdiv');
+	promptElement = document.getElementById('prompt');
+	bottomlineElement = document.getElementById('bottomline');
+	leftOfCursorElement = document.getElementById('lcommand');
+	cursorElement = document.getElementById('undercsr');
+	rightOfCursorElement = document.getElementById('rcommand');
+	pageAlertElement = document.getElementById('pagealert');
+	if (!cursorBlinkThreadId) {
+		cursorBlinkThreadId = setInterval(cursorBlink, cursor_blink_time);
+	}
+	var frm = document.forms[0];
+	inputArea = frm.inputArea;
+	preInputArea = frm.preInputArea;
+	postInputArea = frm.postInputArea;
+	promptElement.innerHTML = promptText;
+	screenElement.scrollTop = 1;
+
+	spacerElement = document.createElement("div");
+	spacerElement.style.height = screenElement.offsetHeight + "px";
+	displayElement.insertBefore(spacerElement, displayElement.firstChild);
+
+	inputArea.focus();
 }
 
 function start() {
