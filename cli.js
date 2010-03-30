@@ -174,23 +174,23 @@ function updateInputDisplay() {
 		underCursor = ' ',
 		right = '';
 	if (trim(inputBuffer) === '') {
-			inputBuffer = '';
-		}
+		inputBuffer = '';
+	}
 	if (cursorPosition < 0) {
-			cursorPosition = 0;
-		}
+		cursorPosition = 0;
+	}
 	if (cursorPosition > inputBuffer.length) {
-			cursorPosition = inputBuffer.length;
-		}
+		cursorPosition = inputBuffer.length;
+	}
 	if (cursorPosition > 0) {
-			left = inputBuffer.substr(0, cursorPosition);
-		}
+		left = inputBuffer.substr(0, cursorPosition);
+	}
 	if (cursorPosition < inputBuffer.length) {
-			underCursor = inputBuffer.substr(cursorPosition, 1);
-		}
+		underCursor = inputBuffer.substr(cursorPosition, 1);
+	}
 	if (inputBuffer.length - cursorPosition > 1) {
-			right = inputBuffer.substr(cursorPosition + 1, inputBuffer.length - cursorPosition - 1);
-		}
+		right = inputBuffer.substr(cursorPosition + 1, inputBuffer.length - cursorPosition - 1);
+	}
 
 	leftOfCursorElement.innerHTML = prepareInputForDisplay(left);
 	cursorElement.innerHTML = prepareInputForDisplay(underCursor);
@@ -585,354 +585,354 @@ function handleKeyEvent(e) {
 		keyName = false,
 		keyCode = false;
 	if (waitingForServer) {
-			return rval;
-		} // waiting on a response from server
+		return rval;
+	} // waiting on a response from server
 	if (!e && window.event) { //i.e. if it's MSIE
-			e = window.event;
-			inputArea.value = '';
-		}
+		e = window.event;
+		inputArea.value = '';
+	}
 	if (!e) return true;
 	if (typeof(e.keyCode) == 'number') {
-			keyCode = e.keyCode;
-		} else if (typeof(e.which) == 'number') {
-			keyCode = e.which;
-		} else if (typeof(e.charCode) == 'number') {
-			keyCode = e.charCode;
-		} else { /*damn*/
-			alert("Damn.");
-			return true;
-		}
+		keyCode = e.keyCode;
+	} else if (typeof(e.which) == 'number') {
+		keyCode = e.which;
+	} else if (typeof(e.charCode) == 'number') {
+		keyCode = e.charCode;
+	} else { /*damn*/
+		alert("Damn.");
+		return true;
+	}
 	if (inputBuffer == ENTER) {
-			inputBuffer = '';
-		} //bah, i have no idea
+		inputBuffer = '';
+	} //bah, i have no idea
 	dbg = e;
 
 	if (navigator.appVersion.indexOf('AppleWebKit') > 0) {
-			//alert(keyCode+' : '+keycodes[keyCode]);
-			character = String.fromCharCode(e.charCode);
-			/*if (keycodes[keyCode] && keycodes[keyCode].length == 1) {
-				if (e.charCode == 0) {
-					alert("key event data: charCode " + e.charCode + " which " + e.which + " keyCode " + e.keyCode);
-				}
-				character = String.fromCharCode(e.charCode);
-			} else if (!keycodes[keyCode]) { // for debugging
-				alert(keyCode);
-			}*/
-		} else {
-			if (inputArea.value) {
-				character = inputArea.value.charAt(0);
+		//alert(keyCode+' : '+keycodes[keyCode]);
+		character = String.fromCharCode(e.charCode);
+		/*if (keycodes[keyCode] && keycodes[keyCode].length == 1) {
+			if (e.charCode == 0) {
+				alert("key event data: charCode " + e.charCode + " which " + e.which + " keyCode " + e.keyCode);
 			}
+			character = String.fromCharCode(e.charCode);
+		} else if (!keycodes[keyCode]) { // for debugging
+			alert(keyCode);
+		}*/
+	} else {
+		if (inputArea.value) {
+			character = inputArea.value.charAt(0);
 		}
+	}
 	if (inputArea.value) {
 			inputArea.value = inputArea.value.substr(1); //remove first character, rest for later
 		}
 	if (waitingAtPage) {
-			if (e.type == 'keydown') {
-				return rval;
-			}
-			pageAlert(false);
-			scroller();
+		if (e.type == 'keydown') {
 			return rval;
 		}
+		pageAlert(false);
+		scroller();
+		return rval;
+	}
 	if (keyCode == 9) { // tab
-			if (e.shiftKey) {
-				postInputArea.focus();
-			} else {
-				preInputArea.focus();
-			}
-		}
-	if (!(stickyState.CTRL || stickyState.ALT)) {
-			if (character && (character.length == 1) && e && (e.keyCode != 13)) { // if it's a regular key
-				if (eatIt) {
-					character = '';
-					eatIt = false;
-				}
-				left = inputBuffer.substr(0, cursorPosition);
-				right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
-				inputBuffer = left + character + right;
-				cursorPosition++;
-				updateInputDisplay();
-			}
-		}
-	if (multilineMode) {
-			scroller();
-		}
-	if (character) {
-			keyName = character;
-		} else if (keycodes[keyCode]) { // in keycodes.js -- is named.
-			keyName = keycodes[keyCode];
+		if (e.shiftKey) {
+			postInputArea.focus();
 		} else {
-			return rval;
+			preInputArea.focus();
 		}
-
-	if (keyName == 'SHIFT') {
-			return rval;
-		}
-	if (keyName == 'ALT' || keyName == 'CTRL') {
-			stickyModifierKeys(keyName, e);
-			return rval;
-		}
-	if (e && (e.type == 'keyup')) {
-			return rval;
-		}
-	if (e && e.shiftKey) {
-			keyName = 'SHIFT_' + keyName;
-		}
-	if (stickyState.CTRL || stickyState.ALT) {
-			eatIt = true;
-			character = '';
-		}
-	if ((e && e.ctrlKey) || stickyState.CTRL) {
-			e.returnValue = false;
-			keyName = 'CTRL_' + keyName;
-			stickyModifierKeys('CTRL', null);
-		}
-	if ((e && e.altKey) || stickyState.ALT) {
-			e.returnValue = false;
-			keyName = 'ALT_' + keyName;
-			stickyModifierKeys('ALT', null);
-		}
-	if (keyName == 'ALT_CTRL_q') { // Wilkommen, Deutsches freunden
+	}
+	if (!(stickyState.CTRL || stickyState.ALT)) {
+		if (character && (character.length == 1) && e && (e.keyCode != 13)) { // if it's a regular key
 			if (eatIt) {
 				character = '';
 				eatIt = false;
-			} else {
-				left = inputBuffer.substr(0, cursorPosition);
-				right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
-				inputBuffer = left + '@' + right;
-				cursorPosition++;
-				updateInputDisplay();
-				return rval;
 			}
+			left = inputBuffer.substr(0, cursorPosition);
+			right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
+			inputBuffer = left + character + right;
+			cursorPosition++;
+			updateInputDisplay();
 		}
-	if (keyName == 'BACKSPACE' || keyName == 'CTRL_h') { // ^h fires up the history pane in FF.
-			e.returnValue = false;
-			if (cursorPosition > 0) {
-				inputArea.focus();
-				left = inputBuffer.substr(0, cursorPosition - 1);
-				right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
-				inputBuffer = left + right;
-				cursorPosition--;
-				updateInputDisplay();
-			}
-			return false;
-		}
-	if (keyName == 'CTRL_w') { // Just for you, snarky visitor. Note that this gets snarfed by most browsers as a "close window" or "close tab" shortcut.
-			e.returnValue = true;
-			if (cursorPosition > 0) {
-				inputArea.focus();
-				var ncp = cursorPosition;
-				while (ncp > 0 && inputBuffer.charAt(ncp) !== ' ') {
-					ncp--;
-				}
-				left = inputBuffer.substr(0, ncp - 1);
-				right = inputBuffer.substr(ncp, inputBuffer.length - cursorPosition);
-				inputBuffer = left + right;
-				cursorPosition = ncp;
-				updateInputDisplay();
-			}
-			return false;
-		}
-	if (keyName == 'DEL' || keyName == 'SHIFT_BACKSPACE') {
-			e.returnValue = false;
-			if (cursorPosition < inputBuffer.length) {
-				left = inputBuffer.substr(0, cursorPosition);
-				right = inputBuffer.substr(cursorPosition + 1, inputBuffer.length - cursorPosition - 1);
-				inputBuffer = left + right;
-				updateInputDisplay();
-			}
+	}
+	if (multilineMode) {
+		scroller();
+	}
+	if (character) {
+		keyName = character;
+	} else if (keycodes[keyCode]) { // in keycodes.js -- is named.
+		keyName = keycodes[keyCode];
+	} else {
+		return rval;
+	}
+
+	if (keyName == 'SHIFT') {
+		return rval;
+	}
+	if (keyName == 'ALT' || keyName == 'CTRL') {
+		stickyModifierKeys(keyName, e);
+		return rval;
+	}
+	if (e && (e.type == 'keyup')) {
+		return rval;
+	}
+	if (e && e.shiftKey) {
+		keyName = 'SHIFT_' + keyName;
+	}
+	if (stickyState.CTRL || stickyState.ALT) {
+		eatIt = true;
+		character = '';
+	}
+	if ((e && e.ctrlKey) || stickyState.CTRL) {
+		e.returnValue = false;
+		keyName = 'CTRL_' + keyName;
+		stickyModifierKeys('CTRL', null);
+	}
+	if ((e && e.altKey) || stickyState.ALT) {
+		e.returnValue = false;
+		keyName = 'ALT_' + keyName;
+		stickyModifierKeys('ALT', null);
+	}
+	if (keyName == 'ALT_CTRL_q') { // Wilkommen, Deutsches freunden
+		if (eatIt) {
+			character = '';
+			eatIt = false;
+		} else {
+			left = inputBuffer.substr(0, cursorPosition);
+			right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
+			inputBuffer = left + '@' + right;
+			cursorPosition++;
+			updateInputDisplay();
 			return rval;
 		}
+	}
+	if (keyName == 'BACKSPACE' || keyName == 'CTRL_h') { // ^h fires up the history pane in FF.
+		e.returnValue = false;
+		if (cursorPosition > 0) {
+			inputArea.focus();
+			left = inputBuffer.substr(0, cursorPosition - 1);
+			right = inputBuffer.substr(cursorPosition, inputBuffer.length - cursorPosition);
+			inputBuffer = left + right;
+			cursorPosition--;
+			updateInputDisplay();
+		}
+		return false;
+	}
+	if (keyName == 'CTRL_w') { // Just for you, snarky visitor. Note that this gets snarfed by most browsers as a "close window" or "close tab" shortcut.
+		e.returnValue = true;
+		if (cursorPosition > 0) {
+			inputArea.focus();
+			var ncp = cursorPosition;
+			while (ncp > 0 && inputBuffer.charAt(ncp) !== ' ') {
+				ncp--;
+			}
+			left = inputBuffer.substr(0, ncp - 1);
+			right = inputBuffer.substr(ncp, inputBuffer.length - cursorPosition);
+			inputBuffer = left + right;
+			cursorPosition = ncp;
+			updateInputDisplay();
+		}
+		return false;
+	}
+	if (keyName == 'DEL' || keyName == 'SHIFT_BACKSPACE') {
+		e.returnValue = false;
+		if (cursorPosition < inputBuffer.length) {
+			left = inputBuffer.substr(0, cursorPosition);
+			right = inputBuffer.substr(cursorPosition + 1, inputBuffer.length - cursorPosition - 1);
+			inputBuffer = left + right;
+			updateInputDisplay();
+		}
+		return rval;
+	}
 	if (keyName == 'CTRL_c') {
+		if (specialCommandHandler) {
+			specialCommandHandler('__CANCEL__');
+		} else {
+			executeCommand('cancel=1', false);
+		}
+		clearInputBuffer();
+		return rval;
+	}
+	if ((keyName == 'LEFT') && (cursorPosition > 0)) {
+		cursorPosition--;
+		updateInputDisplay();
+		e.returnValue = false;
+		return rval;
+	}
+	if ((keyName == 'RIGHT') && (cursorPosition < inputBuffer.length)) {
+		cursorPosition++;
+		updateInputDisplay();
+		e.returnValue = false;
+		return rval;
+	}
+	if (multilineMode) {
+		if (keyName == 'CTRL_x') { // end multilineMode input
 			if (specialCommandHandler) {
-				specialCommandHandler('__CANCEL__');
+				specialCommandHandler('__EXIT__');
 			} else {
-				executeCommand('cancel=1', false);
+				executeCommand('c=', 'p=' + prepareURI(inputBuffer));
 			}
 			clearInputBuffer();
 			return rval;
 		}
-	if ((keyName == 'LEFT') && (cursorPosition > 0)) {
-			cursorPosition--;
+		if (keyName == 'UP') {
+			if (inputBuffer.charCodeAt(cursorPosition) == 13) {
+				cursorPosition++;
+			}
+			var previousNewline = inputBuffer.lastIndexOf(ENTER, cursorPosition - 1);
+			var previousPreviousNewline = inputBuffer.lastIndexOf(ENTER, previousNewline - 1);
+			if (previousNewline < 0) {
+				previousNewline = 0;
+				previousPreviousNewline = 0;
+			}
+			if (previousPreviousNewline < 0) {
+				previousPreviousNewline = 0;
+			}
+			cursorPosition = previousPreviousNewline + cursorPosition - previousNewline;
+			if (cursorPosition > previousNewline) {
+				cursorPosition = previousNewline - 1;
+			}
 			updateInputDisplay();
-			e.returnValue = false;
 			return rval;
 		}
-	if ((keyName == 'RIGHT') && (cursorPosition < inputBuffer.length)) {
+		if (keyName == 'DOWN') {
+			if (inputBuffer.charCodeAt(cursorPosition) == 13) {
+				cursorPosition--;
+			}
+			var previousNewline = Math.max(0, inputBuffer.lastIndexOf(ENTER, cursorPosition - 1));
+			var nextNewline = inputBuffer.indexOf(ENTER, cursorPosition + 1);
+			var nextNextNewline = inputBuffer.indexOf(ENTER, nextNewline + 1);
+			if (nextNewline < 0) {
+				nextNewline = inputBuffer.length;
+				nextNextNewline = nextNewline;
+			}
+			if (nextNextNewline < 0) {
+				nextNextNewline = inputBuffer.length;
+			}
+			cursorPosition = nextNewline + cursorPosition - previousNewline;
+			if (cursorPosition > nextNextNewline) {
+				cursorPosition = nextNextNewline;
+			}
+			updateInputDisplay();
+			return rval;
+		}
+		if (keyName == 'ENTER' || keyCode == 13) {
+			left = inputBuffer.substr(0, cursorPosition);
+			right = inputBuffer.substr(cursorPosition);
+			inputBuffer = left + ENTER + right;
 			cursorPosition++;
 			updateInputDisplay();
-			e.returnValue = false;
 			return rval;
 		}
-	if (multilineMode) {
-			if (keyName == 'CTRL_x') { // end multilineMode input
-				if (specialCommandHandler) {
-					specialCommandHandler('__EXIT__');
-				} else {
-					executeCommand('c=', 'p=' + prepareURI(inputBuffer));
-				}
-				clearInputBuffer();
-				return rval;
+		if (keyName == 'CTRL_a' || keyName == 'HOME') {
+			if (inputBuffer.charCodeAt(cursorPosition) == 13) {
+				cursorPosition--;
 			}
-			if (keyName == 'UP') {
-				if (inputBuffer.charCodeAt(cursorPosition) == 13) {
-					cursorPosition++;
-				}
-				var previousNewline = inputBuffer.lastIndexOf(ENTER, cursorPosition - 1);
-				var previousPreviousNewline = inputBuffer.lastIndexOf(ENTER, previousNewline - 1);
-				if (previousNewline < 0) {
-					previousNewline = 0;
-					previousPreviousNewline = 0;
-				}
-				if (previousPreviousNewline < 0) {
-					previousPreviousNewline = 0;
-				}
-				cursorPosition = previousPreviousNewline + cursorPosition - previousNewline;
-				if (cursorPosition > previousNewline) {
-					cursorPosition = previousNewline - 1;
-				}
-				updateInputDisplay();
-				return rval;
-			}
-			if (keyName == 'DOWN') {
-				if (inputBuffer.charCodeAt(cursorPosition) == 13) {
-					cursorPosition--;
-				}
-				var previousNewline = Math.max(0, inputBuffer.lastIndexOf(ENTER, cursorPosition - 1));
-				var nextNewline = inputBuffer.indexOf(ENTER, cursorPosition + 1);
-				var nextNextNewline = inputBuffer.indexOf(ENTER, nextNewline + 1);
-				if (nextNewline < 0) {
-					nextNewline = inputBuffer.length;
-					nextNextNewline = nextNewline;
-				}
-				if (nextNextNewline < 0) {
-					nextNextNewline = inputBuffer.length;
-				}
-				cursorPosition = nextNewline + cursorPosition - previousNewline;
-				if (cursorPosition > nextNextNewline) {
-					cursorPosition = nextNextNewline;
-				}
-				updateInputDisplay();
-				return rval;
-			}
-			if (keyName == 'ENTER' || keyCode == 13) {
-				left = inputBuffer.substr(0, cursorPosition);
-				right = inputBuffer.substr(cursorPosition);
-				inputBuffer = left + ENTER + right;
-				cursorPosition++;
-				updateInputDisplay();
-				return rval;
-			}
-			if (keyName == 'CTRL_a' || keyName == 'HOME') {
-				if (inputBuffer.charCodeAt(cursorPosition) == 13) {
-					cursorPosition--;
-				}
-				var ocursorPosition = cursorPosition;
-				cursorPosition = inputBuffer.lastIndexOf(ENTER, cursorPosition) + 1;
-				if (cursorPosition >= ocursorPosition) {
-					cursorPosition = 0;
-				}
-				updateInputDisplay();
-				return rval;
-			}
-			if (keyName == 'CTRL_e' || keyName == 'END') {
-				if (inputBuffer.charCodeAt(cursorPosition) == 13) {
-					cursorPosition++;
-				}
-				var ocursorPosition = cursorPosition;
-				cursorPosition = inputBuffer.indexOf(ENTER, cursorPosition);
-				if (cursorPosition <= ocursorPosition) {
-					cursorPosition = inputBuffer.length;
-				}
-				updateInputDisplay();
-				return rval;
-			}
-			if (keyName == 'TAB') {
-				left = inputBuffer.substr(0, cursorPosition);
-				right = inputBuffer.substr(cursorPosition);
-				inputBuffer = left + '    ' + right; // 4 spaces 
-				cursorPosition += 4;
-				updateInputDisplay();
-				return rval;
-			}
-		} else { //not multilineMode
-			if ((keyName == 'CTRL_a' || keyName == 'HOME') && cursorPosition > 0) {
+			var ocursorPosition = cursorPosition;
+			cursorPosition = inputBuffer.lastIndexOf(ENTER, cursorPosition) + 1;
+			if (cursorPosition >= ocursorPosition) {
 				cursorPosition = 0;
-				updateInputDisplay();
-				return rval;
 			}
-			if ((keyName == 'CTRL_e' || keyName == 'END') && cursorPosition < inputBuffer.length) {
+			updateInputDisplay();
+			return rval;
+		}
+		if (keyName == 'CTRL_e' || keyName == 'END') {
+			if (inputBuffer.charCodeAt(cursorPosition) == 13) {
+				cursorPosition++;
+			}
+			var ocursorPosition = cursorPosition;
+			cursorPosition = inputBuffer.indexOf(ENTER, cursorPosition);
+			if (cursorPosition <= ocursorPosition) {
+				cursorPosition = inputBuffer.length;
+			}
+			updateInputDisplay();
+			return rval;
+		}
+		if (keyName == 'TAB') {
+			left = inputBuffer.substr(0, cursorPosition);
+			right = inputBuffer.substr(cursorPosition);
+			inputBuffer = left + '    ' + right; // 4 spaces 
+			cursorPosition += 4;
+			updateInputDisplay();
+			return rval;
+		}
+	} else { //not multilineMode
+		if ((keyName == 'CTRL_a' || keyName == 'HOME') && cursorPosition > 0) {
+			cursorPosition = 0;
+			updateInputDisplay();
+			return rval;
+		}
+		if ((keyName == 'CTRL_e' || keyName == 'END') && cursorPosition < inputBuffer.length) {
+			cursorPosition = inputBuffer.length;
+			updateInputDisplay();
+			return rval;
+		}
+		if (keyName == 'CTRL_l') { // well, maybe some browser catches it
+			displayElement.innerHTML = '';
+			return rval;
+		}
+		if (keyName == 'SCRLOCK') {
+			scrLock = !scrLock;
+			document.getElementById('SCRLOCKindicator').style.display = (scrLock ? 'inline' : 'none');
+		}
+		if (keyName == 'UP' || keyName == 'SHIFT_UP') {
+			if (scrLock || keyName == 'SHIFT_UP') {
+				scrollLine(-1);
+			} else if (historyIndex > 0) {
+				historyIndex--;
+				inputBuffer = historyArray[historyIndex];
 				cursorPosition = inputBuffer.length;
 				updateInputDisplay();
-				return rval;
-			}
-			if (keyName == 'CTRL_l') { // well, maybe some browser catches it
-				displayElement.innerHTML = '';
-				return rval;
-			}
-			if (keyName == 'SCRLOCK') {
-				scrLock = !scrLock;
-				document.getElementById('SCRLOCKindicator').style.display = (scrLock ? 'inline' : 'none');
-			}
-			if (keyName == 'UP' || keyName == 'SHIFT_UP') {
-				if (scrLock || keyName == 'SHIFT_UP') {
-					scrollLine(-1);
-				} else if (historyIndex > 0) {
-					historyIndex--;
-					inputBuffer = historyArray[historyIndex];
-					cursorPosition = inputBuffer.length;
-					updateInputDisplay();
-					jumpToBottom();
-				}
-				return rval;
-			}
-			if (keyName == 'DOWN' || keyName == 'SHIFT_DOWN') {
-				if (scrLock || keyName == 'SHIFT_DOWN') {
-					scrollLine(1);
-				} else if (historyIndex < historyArray.length) {
-					if (historyIndex == historyArray.length - 1) {
-						historyIndex = historyArray.length;
-						clearInputBuffer();
-					} else {
-						inputBuffer = historyArray[++historyIndex];
-					}
-					cursorPosition = inputBuffer.length;
-					updateInputDisplay();
-					jumpToBottom();
-				}
-				return rval;
-			}
-			if (keyName == 'PGUP' || keyName == 'CTRL_UP') {
-				scrollPage(-1);
-				return rval;
-			}
-			if (keyName == 'PGDN' || keyName == 'CTRL_DOWN') {
-				scrollPage(1);
-				return rval;
-			}
-			if (keyName == 'CTRL_HOME') {
-				jumpToTop();
-				return rval;
-			}
-			if (keyName == 'CTRL_END') {
 				jumpToBottom();
-				return rval;
 			}
-			if (keyName == 'TAB') {
-				executeCommand('tc=' + inputBuffer, false); // tab completion
-				return rval;
-			}
-			if (keyName == 'SHIFT_TAB') {
-				return rval;
-			}
-			if (keyName == 'ENTER' || keyCode == 13) {
-				processInputBuffer(inputBuffer);
-				return rval;
-			}
+			return rval;
 		}
+		if (keyName == 'DOWN' || keyName == 'SHIFT_DOWN') {
+			if (scrLock || keyName == 'SHIFT_DOWN') {
+				scrollLine(1);
+			} else if (historyIndex < historyArray.length) {
+				if (historyIndex == historyArray.length - 1) {
+					historyIndex = historyArray.length;
+					clearInputBuffer();
+				} else {
+					inputBuffer = historyArray[++historyIndex];
+				}
+				cursorPosition = inputBuffer.length;
+				updateInputDisplay();
+				jumpToBottom();
+			}
+			return rval;
+		}
+		if (keyName == 'PGUP' || keyName == 'CTRL_UP') {
+			scrollPage(-1);
+			return rval;
+		}
+		if (keyName == 'PGDN' || keyName == 'CTRL_DOWN') {
+			scrollPage(1);
+			return rval;
+		}
+		if (keyName == 'CTRL_HOME') {
+			jumpToTop();
+			return rval;
+		}
+		if (keyName == 'CTRL_END') {
+			jumpToBottom();
+			return rval;
+		}
+		if (keyName == 'TAB') {
+			executeCommand('tc=' + inputBuffer, false); // tab completion
+			return rval;
+		}
+		if (keyName == 'SHIFT_TAB') {
+			return rval;
+		}
+		if (keyName == 'ENTER' || keyCode == 13) {
+			processInputBuffer(inputBuffer);
+			return rval;
+		}
+	}
 	if (inputArea.value) {
-			handleKeyEvent(false);
-		}
+		handleKeyEvent(false);
+	}
 	return rval;
 }
 if (document.captureEvents && Event.KEYUP) {
