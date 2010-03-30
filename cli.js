@@ -88,8 +88,8 @@ function initializeCLI() {
 		b.onkeyup = function (event) {};
 	} else {*/
 	b.onkeypress = function (event) {};
-	b.onkeydown = handleKeyEvent;
-	b.onkeyup = handleKeyEvent;
+	b.addEventListener("keydown", handleKeyEvent, false);
+	b.addEventListener("keyup", handleKeyEvent, false);
 	/*}*/
 	screenElement = document.getElementById('scr');
 	displayElement = document.getElementById('display');
