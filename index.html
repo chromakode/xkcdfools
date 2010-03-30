@@ -17,7 +17,7 @@
   <script type="text/javascript" src="cli.js"></script>
   
  </head>
- <body onload="document.getElementById('welcome').style.visibility='visible';initializeCLI();scroller();">
+ <body onload="start();">
   <!--
   	WordPress CLI theme
  	R. McFarland 2006
@@ -28,18 +28,21 @@
   <div id="spinnerdiv" style="display:none;font-weight:900;">-</div>
   <form onsubmit="inputArea.focus();" action="/">
    <div id="cform">
-     <input name="preInputArea" type="text" class="stealth">
+     <input name="preInputArea" type="text" class="stealth"/>
      <textarea name="inputArea" rows="5" cols="10" class="stealth" taborder="0"></textarea>
-     <input name="postInputArea" type="text" class="stealth">
+     <input name="postInputArea" type="text" class="stealth"/>
    </div>
   </form>
   <div id="scr" onclick="scroller();inputArea.focus();">
   <div id="d_and_c">
    <div id="display">
-    <div id="welcome" style="visibility:hidden">This is a test.</div>
+    <div id="welcome" style="visibility:hidden">
+      <h1>xkcd</h1>
+      <h2>A webcomic of romance, sarcasm, math, and language.</h2>
+      <p>This is a test.</p>
+    </div>
     <noscript>
-    <p>Sorry, the CLI requires JavaScript to work. Please turn on JavaScript<?php if (get_option(THEME_OPTION_PREFIX.'gui_url')){ ?>, 
-    or try the <a href="foo">GUI Interface</a>.</p>
+    <p>Sorry, the CLI requires JavaScript to work. Please turn on JavaScript, or try the <a href="foo">GUI Interface</a>.</p>
     </noscript>
    </div>
    <div id="bottomline">

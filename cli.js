@@ -51,7 +51,7 @@ var scrollerThreadId 		= false;
 var waitingAtPage 		= false;
 var paging 			= true; // there's no option to turn this off in the options page, but you can chage it here. Make it false for no "--More--"
 var initialScreenOffsetHeight 	= false;
-var scrollStep 			= 2;
+var scrollStep 			= 10;
 var bg_color = "#000";
 var fg_color = "#FFF";
 var cursor_blink_time = 700;
@@ -109,6 +109,11 @@ function initializeCLI(){
 	postInputArea 		= frm.postInputArea;
 	promptElement.innerHTML = promptText;
 	screenElement.scrollTop = 1;
+	
+    spacerElement = document.createElement("div");
+    spacerElement.style.height = screenElement.offsetHeight+"px";
+    displayElement.insertBefore(spacerElement, displayElement.firstChild);
+	
 	inputArea.focus();
 }
 
@@ -911,4 +916,10 @@ dbg=e;
 }
 if( document.captureEvents && Event.KEYUP ) {
   document.captureEvents( Event.KEYUP );
+}
+
+function start(){
+	document.getElementById('welcome').style.visibility='visible';
+	initializeCLI();
+	scroller();	
 }
