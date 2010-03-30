@@ -30,7 +30,7 @@ var passwordInputMode = false;
 var historyArray = [];
 var historyIndex = 0;
 var clientSideCommandsEnabled = true;
-var promptText = "guest@xkcd:/$ ";
+var promptText = "guest@xkcd:/$&nbsp;";
 var eatIt = false; // eat next character input
 var spinnerCharacters = ['-', '\\', '|', '/'];
 var spinnerCharacterIndex = 0;
@@ -609,14 +609,15 @@ function handleKeyEvent(e) {
 
 	if (navigator.appVersion.indexOf('AppleWebKit') > 0) {
 			//alert(keyCode+' : '+keycodes[keyCode]);
-			if (keycodes[keyCode] && keycodes[keyCode].length == 1) {
+			character = String.fromCharCode(e.charCode);
+			/*if (keycodes[keyCode] && keycodes[keyCode].length == 1) {
 				if (e.charCode == 0) {
 					alert("key event data: charCode " + e.charCode + " which " + e.which + " keyCode " + e.keyCode);
 				}
 				character = String.fromCharCode(e.charCode);
 			} else if (!keycodes[keyCode]) { // for debugging
 				alert(keyCode);
-			}
+			}*/
 		} else {
 			if (inputArea.value) {
 				character = inputArea.value.charAt(0);
