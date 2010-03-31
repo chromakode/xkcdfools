@@ -133,7 +133,8 @@ TerminalCommandHandler.commands['reddit'] = function(terminal, num) {
 	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=140&url='+encodeURIComponent(url)+'&newwindow=1" height="22" width="140" scrolling="no" frameborder="0"></iframe>'));
 };
 
-TerminalCommandHandler.fallback = function(terminal, callback, cmd) {
+TerminalCommandHandler.fallback = function(terminal, cmd) {
+	console.log(cmd);
 	if (cmd == 'make me a sandwich') {
 		terminal.print('What? Make it yourself.');
 	} else if (cmd == 'sudo make me a sandwich') {
