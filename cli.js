@@ -57,7 +57,7 @@ var TerminalCommandHandler = {
 	},
 	
 	process: function(terminal, cmd) {
-		var cmd_args = cmd.split(" ");
+		var cmd_args = cmd.split(' ');
 		cmd_name = cmd_args.shift();
 		cmd_args.unshift(terminal);
 		if (cmd_name in this.commands) {
@@ -144,7 +144,7 @@ var Terminal = {
 					} else if (letter == 'h') {
 						Terminal.deleteCharacter(false);
 					} else if (letter == 'l') {
-						$("#display").html('');
+						$('#display').html('');
 					} else if (letter == 'a') {
 						this.setPos(0);
 					} else if (letter == 'e') {
@@ -208,7 +208,7 @@ var Terminal = {
 				}
 			});
 		
-		$(window).resize(function(e) { $('#screen').scrollTop($('#screen').attr("scrollHeight")); });
+		$(window).resize(function(e) { $('#screen').scrollTop($('#screen').attr('scrollHeight')); });
 
 		this.setCursorState(true);
 		this.setWorking(false);
@@ -348,7 +348,7 @@ var Terminal = {
 	},
 
 	jumpToBottom: function() {
-		$('#screen').animate({scrollTop: $('#screen').attr("scrollHeight")}, this.config.scrollSpeed, 'linear');
+		$('#screen').animate({scrollTop: $('#screen').attr('scrollHeight')}, this.config.scrollSpeed, 'linear');
 	},
 
 	jumpToTop: function() {
@@ -364,7 +364,7 @@ var Terminal = {
 	},
 
 	print: function(text) {
-		if (typeof text == "string") {
+		if (typeof text == 'string') {
 			$('#display').append($('<p>').text(text));
 		} else {
 			$('#display').append(text);

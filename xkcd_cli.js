@@ -7,6 +7,7 @@ function pathFilename(path) {
 
 var XKCD = {
 	latest: null,
+	last: null,
 	cache: {},
 	
 	get: function(num, success, error) {
@@ -20,13 +21,14 @@ var XKCD = {
 		}
 		
 		if (num in this.cache) {
+			this.last = this.cache[num];
 			success(this.cache[num]);
 		} else {
 			return $.ajax({
 				url: window.location+path,
 				dataType: 'json',
 				success: $.proxy(function(data) {
-					this.cache[num] = data;
+					this.last = this.cache[num] = data;
 					success(data);
 				}, this),
 				error: error});
@@ -35,7 +37,7 @@ var XKCD = {
 };
 
 
-/*TerminalCommandHandler.commands["ls"] = function(terminal, path) {
+/*TerminalCommandHandler.commands['ls'] = function(terminal, path) {
 	if (path) {
 		
 	} else {
@@ -43,16 +45,22 @@ var XKCD = {
 	}
 };*/
 
-TerminalCommandHandler.commands["display"] = function(terminal, path) {
+TerminalCommandHandler.commands['display'] = function(terminal, path) {
 	function fail() {
 		terminal.print($('<p>').addClass('error').text('display: unable to open image "'+path+'": No such file or directory.'));
 		terminal.setWorking(false);
 	}
-	
+		
 	terminal.setWorking(true);
-	num = Number(path.match(/^\d+/));
+	path = String(path);
+	if (path) {
+		num = Number(path.match(/^\d+/));
+		filename = pathFilename(path);
+	} else {
+		num = XKCD.last.num;
+	}
 	XKCD.get(num, function(data) {
-		if (pathFilename(path) == pathFilename(data.img)) {
+		if (!filename || (filename == pathFilename(data.img))) {
 			$('<img>')
 				.hide()
 				.load(function() {
@@ -68,10 +76,27 @@ TerminalCommandHandler.commands["display"] = function(terminal, path) {
 	}, fail);
 };
 
-TerminalCommandHandler.commands["cat"] = function(terminal, path) {
-	if (path == "welcome.txt") {
-		terminal.print();
-	} else if (pathFilename(path) == "title.txt") {
+TerminalCommandHandler.commands['next'] = function(terminal) {
+	TerminalCommandHandler.commands['display'](terminal, XKCD.last.num+1);
+};
+
+TerminalCommandHandler.commands['prev'] = function(terminal) {
+	TerminalCommandHandler.commands['display'](terminal, XKCD.last.num-1);
+};
+
+TerminalCommandHandler.commands['first'] = function(terminal) {
+	TerminalCommandHandler.commands['display'](terminal, 1);
+};
+
+TerminalCommandHandler.commands['last'] = function(terminal) {
+	TerminalCommandHandler.commands['display'](terminal, XKCD.latest.num);
+};
+
+TerminalCommandHandler.commands['cat'] = function(terminal, path) {
+	if (path == 'welcome.txt') {
+		terminal.print($('<h4>').text('Welcome to the XKCD console.'));
+		terminal.print('Try "help" for more information.');
+	} else if (pathFilename(path) == 'title.txt') {
 		terminal.setWorking(true);
 		num = Number(path.match(/^\d+/));
 		XKCD.get(num, function(data) {
@@ -86,7 +111,7 @@ TerminalCommandHandler.commands["cat"] = function(terminal, path) {
 	}
 };
 
-TerminalCommandHandler.commands["reddit"] = function(terminal) {
+TerminalCommandHandler.commands['reddit'] = function(terminal) {
 	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=120&url='+encodeURIComponent(window.location)+'&newwindow=1" height="22" width="120" scrolling="no" frameborder="0"></iframe>'));
 };
 
@@ -95,8 +120,8 @@ $(document).ready(function() {
 	$('#screen').bind('cli-ready', function(e) {
 		XKCD.get(null, function(data) {
 			XKCD.latest = data;
-			Terminal.runCommand("display "+XKCD.latest.num+"/"+pathFilename(XKCD.latest.img), 1000, function() {
-				Terminal.runCommand("cat welcome.txt", 1000);
+			Terminal.runCommand('display '+XKCD.latest.num+'/'+pathFilename(XKCD.latest.img), 1000, function() {
+				Terminal.runCommand('cat welcome.txt', 1000);
 			});
 		});
 	});

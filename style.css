@@ -18,7 +18,7 @@ div#screen li { list-style:none; }
 div#welcome { display:none; }
 h1, h2 { background-color:#FFF; color:#000; }
 h3 { color:#FFF; text-decoration:underline; margin:5px 0 0 0; }
-h4, h5, h6 { text-decoration:none; color:gray; margin:0; }
+h4, h5, h6 { text-decoration:none; margin:0; }
 a, a:visited, .linky { color:#FFF; cursor:pointer; font-weight:bold; text-decoration:none; }
 a:hover, span.linky:hover, td.linky:hover { background-color:#FFF; color:#000; } /*you poor IE-using bastards*/
 table { border-collapse:collapse; }
