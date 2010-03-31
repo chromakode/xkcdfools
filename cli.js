@@ -46,15 +46,11 @@ function entityEncode(str) {
 
 var TerminalCommandHandler = {
 	commands: {
-		ls: function ls(terminal) {
-			terminal.setWorking(true);
-			terminal.setPromptActive(false);
-		},
 		help: function help(terminal) {
 			terminal.print($('<h3>help</h3>'));
-			cmd_list = $('<ul></ul>');
+			cmd_list = $('<ul>');
 			$.each(this.commands, function(name, func) {
-				cmd_list.append($('<li></li>').text(name));
+				cmd_list.append($('<li>').text(name));
 			});
 			terminal.print(cmd_list);
 		}
@@ -67,7 +63,7 @@ var TerminalCommandHandler = {
 		if (cmd_name in this.commands) {
 			this.commands[cmd_name].apply(this, cmd_args);
 		} else {
-			this.print('Unrecognized command. Type "help" for assistance.');
+			terminal.print('Unrecognized command. Type "help" for assistance.');
 		}
 	}
 };
@@ -214,10 +210,12 @@ var Terminal = {
 		this.setCursorState(true);
 		this.setWorking(false);
 		$('#prompt').html(this.config.prompt);
-		$('#screen').hide().fadeIn();
+		$('#screen').hide().fadeIn('fast', function() {
+			$('#screen').triggerHandler('cli-ready');
+		});
 	},
 	
-	setCursorState: function(state) {
+	setCursorState: function(state, fromTimeout) {
 		this.cursorBlinkState = state;
 		if (this.config.cursor_style == 'block') {
 			if (state) {
@@ -234,12 +232,12 @@ var Terminal = {
 		}
 		
 		// (Re)schedule next blink.
-		if (this._cursorBlinkTimeout) {
+		if (!fromTimeout && this._cursorBlinkTimeout) {
 			window.clearTimeout(this._cursorBlinkTimeout);
 			this._cursorBlinkTimeout = null;
 		}
 		this._cursorBlinkTimeout = window.setTimeout($.proxy(function() {
-			this.setCursorState(!this.cursorBlinkState);
+			this.setCursorState(!this.cursorBlinkState, true);
 		},this), this.config.cursor_blink_time);
 	},
 	
@@ -346,11 +344,6 @@ var Terminal = {
 		this.historyPos = this.history.push(cmd);
 	},
 
-	setPromptActive: function(active) {
-		this.promptActive = active;
-		$('#bottomline').toggle(this.promptActive);
-	},
-
 	jumpToBottom: function() {
 		$('#screen').animate({scrollTop: $('#screen').attr("scrollHeight")}, this.config.scrollSpeed, 'linear');
 	},
@@ -384,7 +377,16 @@ var Terminal = {
 			return false;
 		}
 		this.addHistory(cmd);
-		return this.output.process(this, cmd);
+		if (this.output) {
+			return this.output.process(this, cmd);
+		} else {
+			return false;
+		}
+	},
+	
+	setPromptActive: function(active) {
+		this.promptActive = active;
+		$('#bottomline').toggle(this.promptActive);
 	},
 	
 	setWorking: function(working) {
@@ -394,10 +396,30 @@ var Terminal = {
 				this.spinnerIndex = (this.spinnerIndex + 1) % this.config.spinnerCharacters.length;
 				$('#spinner').text(this.config.spinnerCharacters[this.spinnerIndex]);
 			},this), 100);
+			this.setPromptActive(false);
 		} else if (!working && this._spinnerTimeout) {
 			clearInterval(this._spinnerTimeout);
+			this._spinnerTimeout = null;
 			$('#spinner').fadeOut();
+			this.setPromptActive(true);
 		}
+	},
+	
+	runCommand: function(text, duration) {
+		var waitTime = duration / text.length;
+		var index = 0;
+		
+		this.promptActive = false;
+		var interval = window.setInterval($.proxy(function typeCharacter() {
+			if (index < text.length) {
+				this.addCharacter(text.charAt(index));
+				index += 1;
+			} else {
+				clearInterval(interval);
+				this.promptActive = true;
+				this.processInputBuffer();
+			}
+		}, this), waitTime);
 	}
 };
 
@@ -436,7 +458,7 @@ if (possibleCommand == 'gui' || possibleCommand == 'startx') {
 /*setPromptActive(false);
 executeCommand('c=' + cmd, false);*/
 
-$(document).ready(function(){
+$(document).ready(function() {
 	$('#welcome').show();
 	// Kill Opera's backspace keyboard action.
 	document.onkeydown = document.onkeypress = function(e) { return $.hotkeys.specialKeys[e.keyCode] != 'backspace'; };

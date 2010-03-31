@@ -13,7 +13,7 @@ pre, td, p { background-color:transparent; }
 code, p, span, td, th { font-size:1em; }
 p, div#display, ul { margin:0; }
 div#screen p, div#screen span, div#screen a { white-space:pre; }
-div#screen ul { padding-left:5px; }
+div#screen p.error { color:red; }
 div#screen li { list-style:none; }
 div#welcome { display:none; }
 h1, h2 { background-color:#FFF; color:#000; }
