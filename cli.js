@@ -4,12 +4,8 @@
  http://thrind.xamai.ca/
  */
 
-var spinnerCharacters = ['-', '\\', '|', '/'];
-
 /**** start from http://snippets.dzone.com/posts/show/701 ****/
 // Removes leading whitespaces
-
-
 function ltrim(value) {
 	if (value) {
 		var re = /\s*((\S+\s*)*)/;
@@ -19,8 +15,6 @@ function ltrim(value) {
 }
 
 // Removes ending whitespaces
-
-
 function rtrim(value) {
 	if (value) {
 		var re = /((\s*\S+)*)\s*/;
@@ -30,8 +24,6 @@ function rtrim(value) {
 }
 
 // Removes leading and ending whitespaces
-
-
 function trim(value) {
 	if (value) {
 		return ltrim(rtrim(value));
@@ -52,12 +44,31 @@ function entityEncode(str) {
 	return str;
 }
 
-var TerminalCommands = {
-	ls: function ls(which) {
-		executeCommand('c=ls ' + which, false);
+var TerminalCommandHandler = {
+	commands: {
+		ls: function ls(terminal) {
+			terminal.setWorking(true);
+			terminal.setPromptActive(false);
+		},
+		help: function help(terminal) {
+			terminal.print($('<h3>help</h3>'));
+			cmd_list = $('<ul></ul>');
+			$.each(this.commands, function(name, func) {
+				cmd_list.append($('<li></li>').text(name));
+			});
+			terminal.print(cmd_list);
+		}
 	},
-	help: function help(what) {
-		executeCommand('c=help ' + what, false);
+	
+	process: function(terminal, cmd) {
+		var cmd_args = cmd.split(" ");
+		cmd_name = cmd_args.shift();
+		cmd_args.unshift(terminal);
+		if (cmd_name in this.commands) {
+			this.commands[cmd_name].apply(this, cmd_args);
+		} else {
+			this.print('Unrecognized command. Type "help" for assistance.');
+		}
 	}
 };
 
@@ -69,6 +80,10 @@ var Terminal = {
 	promptActive: true,
 	cursorBlinkState: true,
 	_cursorBlinkTimeout: null,
+	spinnerIndex: 0,
+	_spinnerTimeout: null,
+	
+	output: TerminalCommandHandler,
 	
 	config: {
 		scrollStep: 		20,
@@ -77,7 +92,8 @@ var Terminal = {
 		fg_color: 			'#FFF',
 		cursor_blink_time: 	700,
 		cursor_style: 		'block',
-		prompt:				'guest@xkcd:/$ '
+		prompt:				'guest@xkcd:/$ ',
+		spinnerCharacters: 	['-', '\\', '|', '/']
 	},
 	
 	sticky: {
@@ -116,10 +132,10 @@ var Terminal = {
 				
 				if (e.which >= 32 && e.which <= 126) {   
 					var character = String.fromCharCode(e.which);
+					var letter = character.toLowerCase();
 				} else {
 					return;
 				}
-				letter = character.toLowerCase();
 				
 				if ($.browser.opera && !(/[\w\s]/.test(character))) {
 					return; // sigh.
@@ -137,15 +153,13 @@ var Terminal = {
 					} else if (letter == 'e') {
 						this.setPos(this.buffer.length);
 					}
-				} else if (this.sticky.keys.alt) {
-					
 				} else {
 					if (character) {
 						this.addCharacter(character);
 					}
 				}
 			}, this))
-			.bind('keydown', 'return', function(e) { Terminal.processInputBuffer(); })
+			.bind('keydown', 'return', function(e) { if (Terminal.promptActive) Terminal.processInputBuffer(); })
 			.bind('keydown', 'backspace', function(e) { e.preventDefault();	Terminal.deleteCharacter(e.shiftKey); })
 			.bind('keydown', 'del', function(e) { Terminal.deleteCharacter(true); })
 			.bind('keydown', 'left', function(e) { Terminal.moveCursor(-1); })
@@ -198,6 +212,7 @@ var Terminal = {
 			});
 
 		this.setCursorState(true);
+		this.setWorking(false);
 		$('#prompt').html(this.config.prompt);
 		$('#screen').hide().fadeIn();
 	},
@@ -333,7 +348,7 @@ var Terminal = {
 
 	setPromptActive: function(active) {
 		this.promptActive = active;
-		$('bottomline').toggle(this.promptActive);
+		$('#bottomline').toggle(this.promptActive);
 	},
 
 	jumpToBottom: function() {
@@ -353,7 +368,11 @@ var Terminal = {
 	},
 
 	print: function(text) {
-		$('#display').append($('<p>').text(text));
+		if (typeof text == "string") {
+			$('#display').append($('<p>').text(text));
+		} else {
+			$('#display').append(text);
+		}
 		this.jumpToBottom();
 	},
 	
@@ -365,12 +384,20 @@ var Terminal = {
 			return false;
 		}
 		this.addHistory(cmd);
-		this.commandNotFound();
-		return false;
+		return this.output.process(this, cmd);
 	},
 	
-	commandNotFound: function() {
-		this.print('Unrecognized command. Type "help" for assistance.');
+	setWorking: function(working) {
+		if (working && !this._spinnerTimeout) {
+			$('#spinner').fadeIn();
+			this._spinnerTimeout = window.setInterval($.proxy(function() {
+				this.spinnerIndex = (this.spinnerIndex + 1) % this.config.spinnerCharacters.length;
+				$('#spinner').text(this.config.spinnerCharacters[this.spinnerIndex]);
+			},this), 100);
+		} else if (!working && this._spinnerTimeout) {
+			clearInterval(this._spinnerTimeout);
+			$('#spinner').fadeOut();
+		}
 	}
 };
 
@@ -408,23 +435,6 @@ if (possibleCommand == 'gui' || possibleCommand == 'startx') {
 
 /*setPromptActive(false);
 executeCommand('c=' + cmd, false);*/
-
-function busySpinner(active) {
-	if (active) {
-		if (spinnerElement) {
-			spinnerCharacterIndex = (++spinnerCharacterIndex) % spinnerCharacters.length;
-			spinnerElement.innerHTML = spinnerCharacters[spinnerCharacterIndex];
-			if (!spinnerThreadId) {
-				spinnerElement.style.display = 'block';
-				spinnerThreadId = setInterval('busySpinner(true);', 100);
-			}
-		}
-	} else {
-		spinnerElement.style.display = 'none';
-		clearInterval(spinnerThreadId);
-		spinnerThreadId = false;
-	}
-}
 
 $(document).ready(function(){
 	$('#welcome').show();
