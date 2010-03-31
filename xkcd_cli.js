@@ -5,6 +5,11 @@ function pathFilename(path) {
 	}
 }
 
+function getRandomInt(min, max) {
+	// via https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/random#Examples
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 var XKCD = {
 	latest: null,
 	last: null,
@@ -92,6 +97,10 @@ TerminalCommandHandler.commands['first'] = function(terminal) {
 
 TerminalCommandHandler.commands['last'] = function(terminal) {
 	TerminalCommandHandler.commands['display'](terminal, XKCD.latest.num);
+};
+
+TerminalCommandHandler.commands['random'] = function(terminal) {
+	TerminalCommandHandler.commands['display'](terminal, getRandomInt(1, XKCD.latest.num));
 };
 
 TerminalCommandHandler.commands['cat'] = function(terminal, path) {
