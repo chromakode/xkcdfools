@@ -64,7 +64,7 @@ TerminalCommandHandler.commands['display'] = function(terminal, path) {
 			$('<img>')
 				.hide()
 				.load(function() {
-					terminal.print($('<h3>').text(data.title));
+					terminal.print($('<h3>').text(data.num+": "+data.title));
 					terminal.setWorking(false);
 					$(this).fadeIn();
 					terminal.print($(this));
