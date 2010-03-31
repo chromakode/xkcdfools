@@ -144,7 +144,7 @@ var Terminal = {
 					} else if (letter == 'h') {
 						Terminal.deleteCharacter(false);
 					} else if (letter == 'l') {
-						$('#display').html('');
+						this.clear();
 					} else if (letter == 'a') {
 						this.setPos(0);
 					} else if (letter == 'e') {
@@ -277,6 +277,10 @@ var Terminal = {
 		this.buffer = '';
 		this.pos = 0;
 		this.updateInputDisplay();
+	},
+	
+	clear: function() {
+		$('#display').html('');
 	},
 	
 	addCharacter: function(character) {
@@ -429,41 +433,6 @@ var Terminal = {
 		}, this), waitTime);
 	}
 };
-
-/*if (clientSideCommandsEnabled) { 
-if (cmd !== '') {
-	historyArray[historyArray.length] = cmd;
-	historyIndex = historyArray.length;
-}
-var possibleCommand = cmd.toLowerCase(); 
-//CLS
-if (possibleCommand == 'cls' || possibleCommand == 'clear' || possibleCommand == 'reset') {
-	displayElement.innerHTML = '<p></p>';
-	return false;
-}
-//HISTORY
-if (possibleCommand == 'history') {
-	var text = '<p>';
-	for (i = 0; i < historyArray.length; i++) {
-		text += '<span class="linky" onclick="executeCommand(\'c=' + historyArray[i] + '\',false);">';
-		text += historyArray[i] + '</span><br />';
-	}
-	text += '</p>';
-	appendToDisplay(text);
-	return false;
-}
-//STARTX
-if (possibleCommand == 'gui' || possibleCommand == 'startx') {
-	if (gui_url) {
-		document.location.href = gui_url;
-	} else {
-		alert('No GUI link configured!');
-	}
-	return false;
-}  END LOCALLY EVALUATED COMMANDS */
-
-/*setPromptActive(false);
-executeCommand('c=' + cmd, false);*/
 
 $(document).ready(function() {
 	$('#welcome').show();
