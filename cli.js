@@ -59,6 +59,8 @@ var TerminalCommandHandler = {
 		}
 	},
 	
+	fallback: null,
+	
 	process: function(terminal, cmd) {
 		var cmd_args = cmd.split(' ');
 		cmd_name = cmd_args.shift();
@@ -66,7 +68,9 @@ var TerminalCommandHandler = {
 		if (cmd_name in this.commands) {
 			this.commands[cmd_name].apply(this, cmd_args);
 		} else {
-			terminal.print('Unrecognized command. Type "help" for assistance.');
+			if (!(this.fallback && this.fallback(terminal, cmd))) {
+				terminal.print('Unrecognized command. Type "help" for assistance.');
+			}
 		}
 	}
 };
