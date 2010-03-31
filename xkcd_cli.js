@@ -52,8 +52,9 @@ TerminalCommandHandler.commands['display'] = function(terminal, path) {
 	}
 		
 	terminal.setWorking(true);
-	path = String(path);
+	
 	if (path) {
+		path = String(path);
 		num = Number(path.match(/^\d+/));
 		filename = pathFilename(path);
 	} else {
