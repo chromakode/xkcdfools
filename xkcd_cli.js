@@ -80,6 +80,7 @@ TerminalCommandHandler.commands['next'] = function(terminal) {
 	TerminalCommandHandler.commands['display'](terminal, XKCD.last.num+1);
 };
 
+TerminalCommandHandler.commands['previous'] =
 TerminalCommandHandler.commands['prev'] = function(terminal) {
 	TerminalCommandHandler.commands['display'](terminal, XKCD.last.num-1);
 };
@@ -95,6 +96,7 @@ TerminalCommandHandler.commands['last'] = function(terminal) {
 TerminalCommandHandler.commands['cat'] = function(terminal, path) {
 	if (path == 'welcome.txt') {
 		terminal.print($('<h4>').text('Welcome to the XKCD console.'));
+		terminal.print('To navigate, enter "next", "prev", "first", or "last".');
 		terminal.print('Try "help" for more information.');
 	} else if (pathFilename(path) == 'title.txt') {
 		terminal.setWorking(true);
@@ -113,11 +115,6 @@ TerminalCommandHandler.commands['cat'] = function(terminal, path) {
 
 TerminalCommandHandler.commands['reddit'] = function(terminal) {
 	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=120&url='+encodeURIComponent(window.location)+'&newwindow=1" height="22" width="120" scrolling="no" frameborder="0"></iframe>'));
-};
-
-TerminalCommandHandler.commands['reset'] = 
-TerminalCommandHandler.commands['clear'] = function(terminal) {
-	terminal.clear();
 };
 
 $(document).ready(function() {

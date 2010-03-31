@@ -53,6 +53,9 @@ var TerminalCommandHandler = {
 				cmd_list.append($('<li>').text(name));
 			});
 			terminal.print(cmd_list);
+		}, 
+		clear: function(terminal) {
+			terminal.clear();
 		}
 	},
 	
