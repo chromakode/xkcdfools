@@ -288,7 +288,7 @@ var Terminal = {
 	
 	deleteCharacter: function(forward) {
 		var offset = forward ? 1 : 0;
-		if (this.pos > 0) {
+		if (this.pos >= (1 - offset)) {
 			var left = this.buffer.substr(0, this.pos - 1 + offset);
 			var right = this.buffer.substr(this.pos + offset, this.buffer.length - this.pos - offset);
 			this.buffer = left + right;
