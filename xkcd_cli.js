@@ -69,26 +69,25 @@ TerminalCommandHandler.commands["display"] = function(terminal, path) {
 };
 
 TerminalCommandHandler.commands["cat"] = function(terminal, path) {
-	function fail() {
-		terminal.print($('<p>').addClass('error').text('cat: "'+path+'": No such file or directory.'));
-	}
-	
-	if (pathFilename(path) == "title.txt") {
+	if (path == "welcome.txt") {
+		terminal.print();
+	} else if (pathFilename(path) == "title.txt") {
 		terminal.setWorking(true);
 		num = Number(path.match(/^\d+/));
 		XKCD.get(num, function(data) {
-			terminal.print($('<p>').text(data.alt));
+			terminal.print(data.alt);
 			terminal.setWorking(false);
 		}, function() {
-			fail();
+			terminal.print($('<p>').addClass('error').text('cat: "'+path+'": No such file or directory.'));
 			terminal.setWorking(false);
 		});
 	} else {
-		fail();
+		terminal.print($('<p>').addClass('error').text('cat: No such file or directory.'));
 	}
 };
 
 $(document).ready(function() {
+	Terminal.promptActive = false;
 	$('#screen').bind('cli-ready', function(e) {
 		XKCD.get(null, function(data) {
 			XKCD.latest = data;

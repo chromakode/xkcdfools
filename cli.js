@@ -207,6 +207,8 @@ var Terminal = {
 					Terminal.sticky.resetAll();
 				}
 			});
+		
+		$(window).resize(function(e) { $('#screen').scrollTop($('#screen').attr("scrollHeight")); });
 
 		this.setCursorState(true);
 		this.setWorking(false);
