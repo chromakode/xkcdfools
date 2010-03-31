@@ -409,7 +409,7 @@ var Terminal = {
 		}
 	},
 	
-	runCommand: function(text, duration) {
+	runCommand: function(text, duration, callback) {
 		var waitTime = duration / text.length;
 		var index = 0;
 		
@@ -422,6 +422,7 @@ var Terminal = {
 				clearInterval(interval);
 				this.promptActive = true;
 				this.processInputBuffer();
+				if (callback) { callback(); };
 			}
 		}, this), waitTime);
 	}
