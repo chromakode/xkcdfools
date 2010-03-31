@@ -113,8 +113,14 @@ TerminalCommandHandler.commands['cat'] = function(terminal, path) {
 	}
 };
 
-TerminalCommandHandler.commands['reddit'] = function(terminal) {
-	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=120&url='+encodeURIComponent(window.location)+'&newwindow=1" height="22" width="120" scrolling="no" frameborder="0"></iframe>'));
+TerminalCommandHandler.commands['reddit'] = function(terminal, num) {
+	num = Number(num);
+	if (num) {
+		url = 'http://xkcd.com/'+num+'/';
+	} else {
+		var url = window.location;
+	}
+	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=140&url='+encodeURIComponent(url)+'&newwindow=1" height="22" width="140" scrolling="no" frameborder="0"></iframe>'));
 };
 
 $(document).ready(function() {
