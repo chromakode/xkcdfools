@@ -98,7 +98,7 @@ TerminalCommandHandler.commands['cat'] = function(terminal, path) {
 		terminal.print($('<h4>').text('Welcome to the XKCD console.'));
 		terminal.print('To navigate, enter "next", "prev", "first", or "last".');
 		terminal.print('Try "help" for more information.');
-	} else if (pathFilename(path) == 'title.txt') {
+	} else if (pathFilename(path) == 'alt.txt') {
 		terminal.setWorking(true);
 		num = Number(path.match(/^\d+/));
 		XKCD.get(num, function(data) {
@@ -109,7 +109,7 @@ TerminalCommandHandler.commands['cat'] = function(terminal, path) {
 			terminal.setWorking(false);
 		});
 	} else {
-		terminal.print($('<p>').addClass('error').text('cat: No such file or directory.'));
+		terminal.print('You\'re a kitty!');
 	}
 };
 
@@ -123,23 +123,27 @@ TerminalCommandHandler.commands['reddit'] = function(terminal, num) {
 	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=140&url='+encodeURIComponent(url)+'&newwindow=1" height="22" width="140" scrolling="no" frameborder="0"></iframe>'));
 };
 
-TerminalCommandHandler.fallback = function(terminal, cmd) {
+TerminalCommandHandler.fallback = function(terminal, callback, cmd) {
 	if (cmd == 'make me a sandwich') {
 		terminal.print('What? Make it yourself.');
-		return true;
 	} else if (cmd == 'sudo make me a sandwich') {
 		terminal.print('Okay.');
-		return true;
+	} else if (cmd == 'i read the source code') {
+		terminal.print('<3');
+	} else {
+		return false;
 	}
+	return true;
 };
 
 $(document).ready(function() {
 	Terminal.promptActive = false;
-	$('#screen').bind('cli-ready', function(e) {
+	$('#screen').bind('cli-load', function(e) {
 		XKCD.get(null, function(data) {
 			XKCD.latest = data;
-			Terminal.runCommand('display '+XKCD.latest.num+'/'+pathFilename(XKCD.latest.img), 1000, function() {
-				Terminal.runCommand('cat welcome.txt', 1000);
+			Terminal.runCommand('display '+XKCD.latest.num+'/'+pathFilename(XKCD.latest.img));
+			$('#screen').one('cli-ready', function(e) {
+				Terminal.runCommand('cat welcome.txt');
 			});
 		});
 	});

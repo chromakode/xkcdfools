@@ -89,15 +89,16 @@ var Terminal = {
 	output: TerminalCommandHandler,
 	
 	config: {
-		scrollStep: 		20,
+		scrollStep:			20,
 		scrollSpeed:		100,
-		bg_color: 			'#000',
-		fg_color: 			'#FFF',
-		cursor_blink_time: 	700,
-		cursor_style: 		'block',
+		bg_color:			'#000',
+		fg_color:			'#FFF',
+		cursor_blink_time:	700,
+		cursor_style:		'block',
 		prompt:				'guest@xkcd:/$ ',
-		spinnerCharacters: 	['[   ]','[.  ]','[.. ]','[...]'],
-		spinnerSpeed:		250
+		spinnerCharacters:	['[   ]','[.  ]','[.. ]','[...]'],
+		spinnerSpeed:		250,
+		typingSpeed:		50
 	},
 	
 	sticky: {
@@ -221,7 +222,7 @@ var Terminal = {
 		this.setWorking(false);
 		$('#prompt').html(this.config.prompt);
 		$('#screen').hide().fadeIn('fast', function() {
-			$('#screen').triggerHandler('cli-ready');
+			$('#screen').triggerHandler('cli-load');
 		});
 	},
 	
@@ -383,7 +384,7 @@ var Terminal = {
 		this.jumpToBottom();
 	},
 	
-	processInputBuffer: function() {
+	processInputBuffer: function(cmd) {
 		this.print($('<p>').addClass('command').text(this.config.prompt + this.buffer));
 		var cmd = trim(this.buffer);
 		this.clearInputBuffer();
@@ -414,17 +415,19 @@ var Terminal = {
 				$('#spinner').text(this.config.spinnerCharacters[this.spinnerIndex]);
 			},this), this.config.spinnerSpeed);
 			this.setPromptActive(false);
+			$('#screen').triggerHandler('cli-busy');
 		} else if (!working && this._spinnerTimeout) {
 			clearInterval(this._spinnerTimeout);
 			this._spinnerTimeout = null;
 			$('#spinner').fadeOut();
 			this.setPromptActive(true);
+			$('#screen').triggerHandler('cli-ready');
 		}
 	},
 	
-	runCommand: function(text, duration, callback) {
-		var waitTime = duration / text.length;
+	runCommand: function(text) {
 		var index = 0;
+		var mine = false;
 		
 		this.promptActive = false;
 		var interval = window.setInterval($.proxy(function typeCharacter() {
@@ -435,9 +438,8 @@ var Terminal = {
 				clearInterval(interval);
 				this.promptActive = true;
 				this.processInputBuffer();
-				if (callback) { callback(); };
 			}
-		}, this), waitTime);
+		}, this), this.config.typingSpeed);
 	}
 };
 
