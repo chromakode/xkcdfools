@@ -203,7 +203,7 @@ var Terminal = {
 				var keyName = $.hotkeys.specialKeys[e.which];
 				if (keyName in {'ctrl':true, 'alt':true, 'scroll':true}) {
 					Terminal.sticky.toggle(keyName);
-				} else {
+				} else if (!(keyName in {'left':true, 'right':true, 'up':true, 'down':true})) {
 					Terminal.sticky.resetAll();
 				}
 			});
