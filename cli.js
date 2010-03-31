@@ -89,7 +89,8 @@ var Terminal = {
 		cursor_blink_time: 	700,
 		cursor_style: 		'block',
 		prompt:				'guest@xkcd:/$ ',
-		spinnerCharacters: 	['-', '\\', '|', '/']
+		spinnerCharacters: 	['[   ]','[.  ]','[.. ]','[...]'],
+		spinnerSpeed:		250
 	},
 	
 	sticky: {
@@ -370,7 +371,7 @@ var Terminal = {
 	},
 	
 	processInputBuffer: function() {
-		this.print(this.config.prompt + this.buffer);
+		this.print($('<p>').addClass('command').text(this.config.prompt + this.buffer));
 		var cmd = trim(this.buffer);
 		this.clearInputBuffer();
 		if (cmd.length == 0) {
@@ -386,16 +387,19 @@ var Terminal = {
 	
 	setPromptActive: function(active) {
 		this.promptActive = active;
-		$('#bottomline').toggle(this.promptActive);
+		$('#inputline').toggle(this.promptActive);
 	},
 	
 	setWorking: function(working) {
 		if (working && !this._spinnerTimeout) {
-			$('#spinner').fadeIn();
+			$('#display .command:last-child').add('#bottomline').first().append($('#spinner'));
 			this._spinnerTimeout = window.setInterval($.proxy(function() {
+				if (!$('#spinner').is(':visible')) {
+					$('#spinner').fadeIn();
+				}
 				this.spinnerIndex = (this.spinnerIndex + 1) % this.config.spinnerCharacters.length;
 				$('#spinner').text(this.config.spinnerCharacters[this.spinnerIndex]);
-			},this), 100);
+			},this), this.config.spinnerSpeed);
 			this.setPromptActive(false);
 		} else if (!working && this._spinnerTimeout) {
 			clearInterval(this._spinnerTimeout);
