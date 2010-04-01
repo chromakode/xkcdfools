@@ -137,10 +137,14 @@ TerminalShell.commands['sudo'] = function(terminal) {
 };
 
 TerminalShell.commands['shutdown'] = TerminalShell.commands['poweroff'] = function(terminal) {
-	terminal.print('Broadcast message from guest@xkcd');
-	terminal.print();
-	terminal.print('The system is going down for maintenance NOW!');
-	return $('#screen').fadeOut();
+	if (this.sudo) {
+		terminal.print('Broadcast message from guest@xkcd');
+		terminal.print();
+		terminal.print('The system is going down for maintenance NOW!');
+		return $('#screen').fadeOut();
+	} else {
+		terminal.print('Must be root.');
+	}
 };
 
 TerminalShell.commands['exit'] = TerminalShell.commands['quit'] = function(terminal) {
@@ -150,9 +154,13 @@ TerminalShell.commands['exit'] = TerminalShell.commands['quit'] = function(termi
 };
 
 TerminalShell.commands['restart'] = TerminalShell.commands['reboot'] = function(terminal) {
-	TerminalShell.commands['poweroff'](terminal).queue(function(next) {
-		window.location.reload();
-	});
+	if (this.sudo) {
+		TerminalShell.commands['poweroff'](terminal).queue(function(next) {
+			window.location.reload();
+		});
+	} else {
+		terminal.print('Must be root.');
+	}
 };
 
 function linkFile(url) {
