@@ -311,6 +311,7 @@ TerminalShell.commands['wget'] = TerminalShell.commands['curl'] = function(termi
 	}
 };
 
+TerminalShell.commands['write'] =
 TerminalShell.commands['irc'] = function(terminal, nick) {
 	if (nick) {
 		$('.irc').slideUp('fast', function() {
@@ -505,7 +506,9 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'finger': 'Mmmmmm...',
 		'kill': 'Terminator deployed to 1984',
 		'use the force luke': 'I believe you mean source.',
-		'use the source luke': 'I\'m not luke, you\'re luke!'
+		'use the source luke': 'I\'m not luke, you\'re luke!',
+		'ed': 'You are not a diety.',
+		'nano': 'You should really use an editor.'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
