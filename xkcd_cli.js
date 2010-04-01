@@ -260,6 +260,10 @@ TerminalShell.commands['rm'] = function(terminal, flags, path) {
 	}
 };
 
+TerminalShell.commands['cheat'] = function(terminal) {
+	terminal.print($('<a>').text('*** FREE SHIPPING ENABLED ***').attr('href', 'http://store.xkcd.com/'));
+}; 
+
 TerminalShell.commands['reddit'] = function(terminal, num) {
 	num = Number(num);
 	if (num) {
