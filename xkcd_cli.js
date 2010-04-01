@@ -286,6 +286,80 @@ TerminalShell.commands['man'] = function(terminal, what) {
 	}
 };
 
+Adventure = {
+	rooms: {
+		0:{description:'You are at a computer using unixkcd.', exits:{west:1, south:10}},
+		1:{description:'Life is peaceful there.', exits:{east:0, west:2}},
+		2:{description:'In the open air.', exits:{east:1, west:3}},
+		3:{description:'Where the skies are blue.', exits:{east:2, west:4}},
+		4:{description:'This is what we\'re gonna do.', exits:{east:3, west:5}},
+		5:{description:'Sun in wintertime.', exits:{east:4, west:6}},
+		6:{description:'We will do just fine.', exits:{east:5, west:7}},
+		7:{description:'Where the skies are blue.', exits:{east:6, west:8}},
+		8:{description:'This is what we\'re gonna do.', exits:{east:7}},
+		10:{description:'A dark hallway.', exits:{north:0, south:11}, enter:function(terminal) {
+				if (!Adventure.status.lamp) {
+					terminal.print('You are eaten by a grue.');
+					Adventure.status.alive = false;
+					Adventure.goTo(terminal, 666);
+				}
+			}
+		},
+		11:{description:'Bed. This is where you sleep.', exits:{north:10}},
+		666:{description:'You\'re dead!'}
+	},
+	
+	status: {
+		alive: true,
+		lamp: false
+	},
+	
+	goTo: function(terminal, id) {
+		Adventure.location = Adventure.rooms[id];
+		Adventure.look(terminal);
+		if (Adventure.location.enter) {
+			Adventure.location.enter(terminal);
+		}
+	}
+};
+Adventure.location = Adventure.rooms[0];
+
+TerminalShell.commands['look'] = Adventure.look = function(terminal) {
+	terminal.print(Adventure.location.description);	
+	if (Adventure.location.exits) {
+		terminal.print();
+		
+		var possibleDirections = [];
+		$.each(Adventure.location.exits, function(name, id) {
+			possibleDirections.push(name);
+		});
+		terminal.print('Exits: '+possibleDirections.join(', '));
+	}
+};
+
+TerminalShell.commands['go'] = Adventure.go = function(terminal, direction) {
+	if (Adventure.location.exits && direction in Adventure.location.exits) {
+		Adventure.goTo(terminal, Adventure.location.exits[direction]);
+	} else if (!direction) {
+		terminal.print('Go where?');
+	} else {
+		terminal.print('You cannot go '+direction+'.');
+	}
+};
+
+TerminalShell.commands['light'] = function(terminal, what) {
+	if (what == "lamp") {
+		if (!Adventure.status.lamp) {
+			terminal.print('You set your lamp ablaze.');
+			Adventure.status.lamp = true;
+		} else {
+			terminal.print('Your lamp is already lit!');
+		}
+	} else {
+		terminal.print('Light what?');
+	}
+};
+
 // No peeking!
 TerminalShell.commands['help'] = function(terminal) {
 	terminal.print('You can do this.');
