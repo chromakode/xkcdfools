@@ -100,6 +100,7 @@ TerminalShell.commands['first'] = function(terminal) {
 	xkcdDisplay(terminal, 1);
 };
 
+TerminalShell.commands['latest'] =
 TerminalShell.commands['last'] = function(terminal) {
 	xkcdDisplay(terminal, xkcd.latest.num);
 };
