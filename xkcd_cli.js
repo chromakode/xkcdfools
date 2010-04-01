@@ -292,14 +292,18 @@ TerminalShell.commands['reddit'] = function(terminal, num) {
 };
 
 TerminalShell.commands['wget'] = TerminalShell.commands['curl'] = function(terminal, dest) {
-	terminal.setWorking(true);
-	var browser = $('<iframe>')
-		.attr('src', dest).width("100%").height(600)
-		.one('load', function() {
-			terminal.setWorking(false);
-		});
-	terminal.print(browser);
-	return browser;
+	if (dest) {
+		terminal.setWorking(true);
+		var browser = $('<iframe>')
+			.attr('src', dest).width("100%").height(600)
+			.one('load', function() {
+				terminal.setWorking(false);
+			});
+		terminal.print(browser);
+		return browser;
+	} else {
+		terminal.print("Please specify a URL.");
+	}
 };
 
 TerminalShell.commands['irc'] = function(terminal, nick) {
