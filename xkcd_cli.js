@@ -185,13 +185,17 @@ TerminalShell.commands['apt-get'] = function(terminal, subcmd, sudo) {
 TerminalShell.commands['sudo'] = function(terminal) {
 	var cmd_args = Array.prototype.slice.call(arguments);
 	cmd_args.shift(); // terminal
-	var cmd_name = cmd_args.shift();
-	cmd_args.unshift(terminal);
-	cmd_args.push('sudo');
-	if (cmd_name in TerminalShell.commands) {
-		this.commands[cmd_name].apply(this, cmd_args);
+	if (cmd_args.join(' ') == 'make me a sandwich') {
+		terminal.print('Okay.');
 	} else {
-		terminal.print('sudo: '+cmd_name+': command not found');
+		var cmd_name = cmd_args.shift();
+		cmd_args.unshift(terminal);
+		cmd_args.push('sudo');
+		if (cmd_name in TerminalShell.commands) {
+			this.commands[cmd_name].apply(this, cmd_args);
+		} else {
+			terminal.print('sudo: '+cmd_name+': command not found');
+		}
 	}
 };
 
@@ -219,7 +223,6 @@ TerminalShell.commands['man'] = function(terminal, what) {
 TerminalShell.fallback = function(terminal, cmd) {
 	oneliners = {
 		'make me a sandwich': 'What? Make it yourself.',
-		'sudo make me a sandwich': 'Okay.',
 		'i read the source code': '<3',
 		'lpr': 'PC LOAD LETTER',
 		'hello joshua': 'How about a nice game of Global Thermonuclear War?',
