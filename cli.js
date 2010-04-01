@@ -170,6 +170,8 @@ var Terminal = {
 						this.setPos(0);
 					} else if (letter == 'e') {
 						this.setPos(this.buffer.length);
+					} else if (letter == 'd') {
+						this.runCommand('logout');
 					}
 				} else {
 					if (character) {
