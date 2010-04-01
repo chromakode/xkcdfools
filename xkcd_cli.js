@@ -518,6 +518,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'kill': 'Terminator deployed to 1984',
 		'use the force luke': 'I believe you mean source.',
 		'use the source luke': 'I\'m not luke, you\'re luke!',
+		'enable time travel': 'TARDIS error: Time Lord missing.',
 		'ed': 'You are not a diety.'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
@@ -547,6 +548,8 @@ TerminalShell.fallback = function(terminal, cmd) {
 			terminal.print($('<iframe width="800" height="600" src="http://www.robotfindskitten.net/rfk.swf"></iframe>'));
 		} else if (cmd == 'buy stuff') {
 			Filesystem['store'].enter();
+		} else if (cmd == 'time travel') {
+			xkcdDisplay(terminal, 630);
 		} else if (/:\(\)\s*{\s*:\s*\|\s*:\s*&\s*}\s*;\s*:/.test(cmd)) {
 			Terminal.setWorking(true);
 		} else {
