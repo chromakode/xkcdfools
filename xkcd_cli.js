@@ -51,16 +51,21 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 		terminal.print($('<p>').addClass('error').text('display: unable to open image "'+path+'": No such file or directory.'));
 		terminal.setWorking(false);
 	}
-		
-	terminal.setWorking(true);
-	
+			
 	if (path) {
 		path = String(path);
 		num = Number(path.match(/^\d+/));
 		filename = pathFilename(path);
+		
+		if (num > xkcd.latest.num) {
+			terminal.print("Time travel mode not enabled.");
+			return;
+		}
 	} else {
 		num = xkcd.last.num;
 	}
+	
+	terminal.setWorking(true);
 	xkcd.get(num, function(data) {
 		if (!filename || (filename == pathFilename(data.img))) {
 			$('<img>')
