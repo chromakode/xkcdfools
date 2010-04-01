@@ -133,12 +133,16 @@ var Terminal = {
 	},
 	
 	init: function() {
-		$(document)
-			.keypress($.proxy(function(e) {	
-				if (!this.promptActive) {
-					return;
+		function ifActive(func) {
+			return function() {
+				if (Terminal.promptActive) {
+					func.apply(this, arguments);
 				}
-				
+			};
+		}
+		
+		$(document)
+			.keypress($.proxy(ifActive(function(e) {	
 				if (e.which >= 32 && e.which <= 126) {   
 					var character = String.fromCharCode(e.which);
 					var letter = character.toLowerCase();
@@ -168,13 +172,13 @@ var Terminal = {
 						e.preventDefault();
 					}
 				}
-			}, this))
-			.bind('keydown', 'return', function(e) { if (Terminal.promptActive) Terminal.processInputBuffer(); })
-			.bind('keydown', 'backspace', function(e) { e.preventDefault();	Terminal.deleteCharacter(e.shiftKey); })
-			.bind('keydown', 'del', function(e) { Terminal.deleteCharacter(true); })
-			.bind('keydown', 'left', function(e) { Terminal.moveCursor(-1); })
-			.bind('keydown', 'right', function(e) { Terminal.moveCursor(1); })
-			.bind('keydown', 'up', function(e) {
+			}), this))
+			.bind('keydown', 'return', ifActive(function(e) { Terminal.processInputBuffer(); }))
+			.bind('keydown', 'backspace', ifActive(function(e) { e.preventDefault();	Terminal.deleteCharacter(e.shiftKey); }))
+			.bind('keydown', 'del', ifActive(function(e) { Terminal.deleteCharacter(true); }))
+			.bind('keydown', 'left', ifActive(function(e) { Terminal.moveCursor(-1); }))
+			.bind('keydown', 'right', ifActive(function(e) { Terminal.moveCursor(1); }))
+			.bind('keydown', 'up', ifActive(function(e) {
 				e.preventDefault();
 				if (e.shiftKey || Terminal.sticky.keys.scroll) {
 					Terminal.scrollLine(-1);
@@ -183,8 +187,8 @@ var Terminal = {
 				} else {
 					Terminal.moveHistory(-1);
 				}
-			})
-			.bind('keydown', 'down', function(e) {
+			}))
+			.bind('keydown', 'down', ifActive(function(e) {
 				e.preventDefault();
 				if (e.shiftKey || Terminal.sticky.keys.scroll) {
 					Terminal.scrollLine(1);
@@ -193,25 +197,25 @@ var Terminal = {
 				} else {
 					Terminal.moveHistory(1);
 				}
-			})
-			.bind('keydown', 'pageup', function(e) { Terminal.scrollPage(-1); })
-			.bind('keydown', 'pagedown', function(e) { Terminal.scrollPage(1); })
-			.bind('keydown', 'home', function(e) {
+			}))
+			.bind('keydown', 'pageup', ifActive(function(e) { Terminal.scrollPage(-1); }))
+			.bind('keydown', 'pagedown', ifActive(function(e) { Terminal.scrollPage(1); }))
+			.bind('keydown', 'home', ifActive(function(e) {
 				e.preventDefault();
 				if (e.ctrlKey || Terminal.sticky.keys.ctrl) {
 					Terminal.jumpToTop();
 				} else {
 					Terminal.setPos(0);
 				}
-			})
-			.bind('keydown', 'end', function(e) {
+			}))
+			.bind('keydown', 'end', ifActive(function(e) {
 				e.preventDefault();
 				if (e.ctrlKey || Terminal.sticky.keys.ctrl) {
 					Terminal.jumpToBottom();
 				} else {
 					Terminal.setPos(Terminal.buffer.length);
 				}
-			})
+			}))
 			.bind('keydown', 'tab', function(e) {
 				e.preventDefault();
 			})
