@@ -31,6 +31,7 @@ div#indicators span { background-color:#FFF; color:#000; display:none; }
 #spinner { margin-left:1em; padding:0; display:none; font-weight:bold; line-height:0px; }
 div#cform { height:1px; left:0; position:absolute; top:0; width:1px; }
 img { color:#FFF; font-size:x-small; } /* for broken images */
+img.comic { background:white; padding:5px; }
 iframe { margin:5px 0; }
 form#searchform input[type=text] { background-color:#000; border:1px solid #FFF; color:#FFF; font-family:"Courier New",Courier,monospace; width:100px; }
 form#searchform input[type=submit] { background-color:#FFF; border:1px solid #000; color:#000; font-family:"Courier New",Courier,monospace; font-size:1em; }

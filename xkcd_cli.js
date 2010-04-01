@@ -42,7 +42,7 @@ var xkcd = {
 };
 
 
-/*TerminalCommandHandler.commands['ls'] = function(terminal, path) {
+/*TerminalShell.commands['ls'] = function(terminal, path) {
 	if (path) {
 		
 	} else {
@@ -50,7 +50,7 @@ var xkcd = {
 	}
 };*/
 
-TerminalCommandHandler.commands['display'] = function(terminal, path) {
+var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 	function fail() {
 		terminal.print($('<p>').addClass('error').text('display: unable to open image "'+path+'": No such file or directory.'));
 		terminal.setWorking(false);
@@ -75,37 +75,38 @@ TerminalCommandHandler.commands['display'] = function(terminal, path) {
 					$(this).fadeIn();
 					terminal.print($(this));
 				})
-				.attr({src:data.img, alt:data.title, title:data.alt});
+				.attr({src:data.img, alt:data.title, title:data.alt})
+				.addClass('comic');
 		} else {
 			fail();
 		}
 	}, fail);
 };
 
-TerminalCommandHandler.commands['next'] = function(terminal) {
-	TerminalCommandHandler.commands['display'](terminal, xkcd.last.num+1);
+TerminalShell.commands['next'] = function(terminal) {
+	xkcdDisplay(terminal, xkcd.last.num+1);
 };
 
-TerminalCommandHandler.commands['previous'] =
-TerminalCommandHandler.commands['prev'] = function(terminal) {
-	TerminalCommandHandler.commands['display'](terminal, xkcd.last.num-1);
+TerminalShell.commands['previous'] =
+TerminalShell.commands['prev'] = function(terminal) {
+	xkcdDisplay(terminal, xkcd.last.num-1);
 };
 
-TerminalCommandHandler.commands['first'] = function(terminal) {
-	TerminalCommandHandler.commands['display'](terminal, 1);
+TerminalShell.commands['first'] = function(terminal) {
+	xkcdDisplay['display'](terminal, 1);
 };
 
-TerminalCommandHandler.commands['last'] = function(terminal) {
-	TerminalCommandHandler.commands['display'](terminal, xkcd.latest.num);
+TerminalShell.commands['last'] = function(terminal) {
+	xkcdDisplay['display'](terminal, xkcd.latest.num);
 };
 
-TerminalCommandHandler.commands['random'] = function(terminal) {
-	TerminalCommandHandler.commands['display'](terminal, getRandomInt(1, xkcd.latest.num));
+TerminalShell.commands['random'] = function(terminal) {
+	xkcdDisplay['display'](terminal, getRandomInt(1, xkcd.latest.num));
 };
 
-TerminalCommandHandler.commands['cat'] = function(terminal, path) {
+TerminalShell.commands['cat'] = function(terminal, path) {
 	if (path == 'welcome.txt') {
-		terminal.print($('<h4>').text('Welcome to the xkcd console.'));
+		terminal.print($('<h4>').text('Welcome to the unixkcd console.'));
 		terminal.print('To navigate, enter "next", "prev", "first", or "last".');
 		terminal.print('Try "help" for more information.');
 	} else if (pathFilename(path) == 'alt.txt') {
@@ -123,7 +124,7 @@ TerminalCommandHandler.commands['cat'] = function(terminal, path) {
 	}
 };
 
-TerminalCommandHandler.commands['reddit'] = function(terminal, num) {
+TerminalShell.commands['reddit'] = function(terminal, num) {
 	num = Number(num);
 	if (num) {
 		url = 'http://xkcd.com/'+num+'/';
@@ -133,14 +134,20 @@ TerminalCommandHandler.commands['reddit'] = function(terminal, num) {
 	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=140&url='+encodeURIComponent(url)+'&newwindow=1" height="22" width="140" scrolling="no" frameborder="0"></iframe>'));
 };
 
-TerminalCommandHandler.fallback = function(terminal, cmd) {
-	console.log(cmd);
-	if (cmd == 'make me a sandwich') {
-		terminal.print('What? Make it yourself.');
-	} else if (cmd == 'sudo make me a sandwich') {
-		terminal.print('Okay.');
-	} else if (cmd == 'i read the source code') {
-		terminal.print('<3');
+TerminalShell.fallback = function(terminal, cmd) {
+	oneliners = {
+		'make me a sandwich': 'What? Make it yourself.',
+		'sudo make me a sandwich': 'Okay.',
+		'i read the source code': '<3',
+		'lpr': 'PC LOAD LETTER',
+		'hello joshua': 'How about a nice game of Global Thermonuclear War?'
+	};
+	oneliners['emacs'] = 'You should really use vim.';
+	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
+	
+	cmd = cmd.toLowerCase();
+	if (cmd in oneliners) {
+		terminal.print(oneliners[cmd]);
 	} else {
 		return false;
 	}

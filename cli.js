@@ -2,7 +2,11 @@
  Client-side logic for Wordpress CLI theme
  R. McFarland, 2006, 2007, 2008
  http://thrind.xamai.ca/
- */
+ 
+ jQuery rewrite and overhaul
+ Chromakode, 2010
+ http://www.chromakode.com/
+*/
 
 /**** start from http://snippets.dzone.com/posts/show/701 ****/
 // Removes leading whitespaces
@@ -44,7 +48,7 @@ function entityEncode(str) {
 	return str;
 }
 
-var TerminalCommandHandler = {
+var TerminalShell = {
 	commands: {
 		help: function help(terminal) {
 			terminal.print($('<h3>help</h3>'));
@@ -86,7 +90,7 @@ var Terminal = {
 	spinnerIndex: 0,
 	_spinnerTimeout: null,
 	
-	output: TerminalCommandHandler,
+	output: TerminalShell,
 	
 	config: {
 		scrollStep:			20,
