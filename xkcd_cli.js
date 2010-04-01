@@ -547,7 +547,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 			terminal.print($('<iframe width="800" height="600" src="http://www.robotfindskitten.net/rfk.swf"></iframe>'));
 		} else if (cmd == 'buy stuff') {
 			Filesystem['store'].enter();
-		} else if (cmd == ':(){ :|:& };:') {
+		} else if (/:\(\)\s*{\s*:\s*\|\s*:\s*&\s*}\s*;\s*:/.test(cmd)) {
 			Terminal.setWorking(true);
 		} else {
 			$.get("/unixkcd/missing", {cmd: cmd});
