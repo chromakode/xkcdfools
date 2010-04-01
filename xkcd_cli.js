@@ -481,6 +481,7 @@ TerminalShell.commands['help'] = TerminalShell.commands['halp'] = function(termi
 TerminalShell.fallback = function(terminal, cmd) {
 	oneliners = {
 		'make me a sandwich': 'What? Make it yourself.',
+		'make love': 'I put on my robe and wizard hat.',
 		'i read the source code': '<3',
 		'pwd': 'You are in a maze of twisty passages, all alike.',
 		'lpr': 'PC LOAD LETTER',
