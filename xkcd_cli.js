@@ -195,6 +195,27 @@ TerminalShell.commands['sudo'] = function(terminal) {
 	}
 };
 
+function oneLiner(terminal, msg, msgmap) {
+	if (msg in msgmap) {
+		terminal.print(msgmap[msg]);
+		return true;
+	} else {
+		return false;
+	}
+}
+
+TerminalShell.commands['man'] = function(terminal, what) {
+	pages = {
+		'last': 'Man, last night was AWESOME.',
+		'help': 'Man, help me out here.',
+		'next': 'Request confirmed; you will be reincarnated as a man next.',
+		'cat':  'You are now riding a half-man half-cat.'
+	};
+	if (!oneLiner(terminal, what, pages)) {
+		terminal.print('Oh, I\'m sure you can figure it out.');
+	}
+};
+
 TerminalShell.fallback = function(terminal, cmd) {
 	oneliners = {
 		'make me a sandwich': 'What? Make it yourself.',
@@ -207,21 +228,23 @@ TerminalShell.fallback = function(terminal, cmd) {
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
 	
 	cmd = cmd.toLowerCase();
-	if (cmd in oneliners) {
-		terminal.print(oneliners[cmd]);
-	} else if (cmd == "asl" || cmd == "a/s/l") {
-		terminal.print(randomChoice([
-			'2/AMD64/Server Rack',
-			'328/M/Transylvania',
-			'6/M/Battle School',
-			'48/M/The White House',
-			'7/F/Rapture',
-			'Exactly your age/A gender you\'re attracted to/Far far away.',
-			'7,831/F/Lothlórien',
-			'42/M/FBI Field Office'
-		]));
-	} else {
-		return false;
+	if (!oneLiner(terminal, cmd, oneliners)) {
+		if (cmd == "asl" || cmd == "a/s/l") {
+			terminal.print(randomChoice([
+				'2/AMD64/Server Rack',
+				'328/M/Transylvania',
+				'6/M/Battle School',
+				'48/M/The White House',
+				'7/F/Rapture',
+				'Exactly your age/A gender you\'re attracted to/Far far away.',
+				'7,831/F/Lothlórien',
+				'42/M/FBI Field Office'
+			]));
+		} else if (cmd == 'find kitten') {
+			terminal.print($('<iframe width="800" height="600" src="http://www.robotfindskitten.net/rfk.swf"></iframe>'));
+		} else {
+			return false;
+		}
 	}
 	return true;
 };
