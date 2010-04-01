@@ -222,7 +222,8 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'sudo make me a sandwich': 'Okay.',
 		'i read the source code': '<3',
 		'lpr': 'PC LOAD LETTER',
-		'hello joshua': 'How about a nice game of Global Thermonuclear War?'
+		'hello joshua': 'How about a nice game of Global Thermonuclear War?',
+		'xyzzy': 'Nothing happens.'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';

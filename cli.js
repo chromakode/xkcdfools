@@ -165,6 +165,7 @@ var Terminal = {
 				} else {
 					if (character) {
 						this.addCharacter(character);
+						e.preventDefault();
 					}
 				}
 			}, this))
