@@ -10,7 +10,7 @@ function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-var XKCD = {
+var xkcd = {
 	latest: null,
 	last: null,
 	cache: {},
@@ -63,9 +63,9 @@ TerminalCommandHandler.commands['display'] = function(terminal, path) {
 		num = Number(path.match(/^\d+/));
 		filename = pathFilename(path);
 	} else {
-		num = XKCD.last.num;
+		num = xkcd.last.num;
 	}
-	XKCD.get(num, function(data) {
+	xkcd.get(num, function(data) {
 		if (!filename || (filename == pathFilename(data.img))) {
 			$('<img>')
 				.hide()
@@ -83,12 +83,12 @@ TerminalCommandHandler.commands['display'] = function(terminal, path) {
 };
 
 TerminalCommandHandler.commands['next'] = function(terminal) {
-	TerminalCommandHandler.commands['display'](terminal, XKCD.last.num+1);
+	TerminalCommandHandler.commands['display'](terminal, xkcd.last.num+1);
 };
 
 TerminalCommandHandler.commands['previous'] =
 TerminalCommandHandler.commands['prev'] = function(terminal) {
-	TerminalCommandHandler.commands['display'](terminal, XKCD.last.num-1);
+	TerminalCommandHandler.commands['display'](terminal, xkcd.last.num-1);
 };
 
 TerminalCommandHandler.commands['first'] = function(terminal) {
@@ -96,22 +96,22 @@ TerminalCommandHandler.commands['first'] = function(terminal) {
 };
 
 TerminalCommandHandler.commands['last'] = function(terminal) {
-	TerminalCommandHandler.commands['display'](terminal, XKCD.latest.num);
+	TerminalCommandHandler.commands['display'](terminal, xkcd.latest.num);
 };
 
 TerminalCommandHandler.commands['random'] = function(terminal) {
-	TerminalCommandHandler.commands['display'](terminal, getRandomInt(1, XKCD.latest.num));
+	TerminalCommandHandler.commands['display'](terminal, getRandomInt(1, xkcd.latest.num));
 };
 
 TerminalCommandHandler.commands['cat'] = function(terminal, path) {
 	if (path == 'welcome.txt') {
-		terminal.print($('<h4>').text('Welcome to the XKCD console.'));
+		terminal.print($('<h4>').text('Welcome to the xkcd console.'));
 		terminal.print('To navigate, enter "next", "prev", "first", or "last".');
 		terminal.print('Try "help" for more information.');
 	} else if (pathFilename(path) == 'alt.txt') {
 		terminal.setWorking(true);
 		num = Number(path.match(/^\d+/));
-		XKCD.get(num, function(data) {
+		xkcd.get(num, function(data) {
 			terminal.print(data.alt);
 			terminal.setWorking(false);
 		}, function() {
@@ -150,9 +150,9 @@ TerminalCommandHandler.fallback = function(terminal, cmd) {
 $(document).ready(function() {
 	Terminal.promptActive = false;
 	$('#screen').bind('cli-load', function(e) {
-		XKCD.get(null, function(data) {
-			XKCD.latest = data;
-			Terminal.runCommand('display '+XKCD.latest.num+'/'+pathFilename(XKCD.latest.img));
+		xkcd.get(null, function(data) {
+			xkcd.latest = data;
+			Terminal.runCommand('display '+xkcd.latest.num+'/'+pathFilename(xkcd.latest.img));
 			$('#screen').one('cli-ready', function(e) {
 				Terminal.runCommand('cat welcome.txt');
 			});
