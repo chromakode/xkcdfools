@@ -499,7 +499,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'xyzzy': 'Nothing happens.',
 		'date': 'March 32nd',
 		'hello': 'Why hello there!',
-		'who': 'Who are you?',
+		'who': 'Doctor Who?',
 		'xkcd': 'Yes?',
 		'su': 'God mode activated. Remember, with great power comes great ... aw, screw it, go have fun.',
 		'fuck': 'I have a headache.',
