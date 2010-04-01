@@ -62,10 +62,14 @@ var TerminalShell = {
 			terminal.clear();
 		}
 	},
-	
+	filters: [],
 	fallback: null,
 	
+	lastCommand: null,
 	process: function(terminal, cmd) {
+		$.each(this.filters, $.proxy(function(index, filter) {
+			cmd = filter.call(this, terminal, cmd);
+		}, this));
 		var cmd_args = cmd.split(' ');
 		var cmd_name = cmd_args.shift();
 		cmd_args.unshift(terminal);
@@ -76,6 +80,7 @@ var TerminalShell = {
 				terminal.print('Unrecognized command. Type "help" for assistance.');
 			}
 		}
+		this.lastCommand = cmd;
 	}
 };
 

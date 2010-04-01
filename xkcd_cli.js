@@ -141,6 +141,16 @@ TerminalShell.commands['sudo'] = function(terminal) {
 	}
 };
 
+TerminalShell.filters.push(function (terminal, cmd) {
+	if (/!!/.test(cmd)) {
+		var newCommand = cmd.replace('!!', this.lastCommand);
+		terminal.print(newCommand);
+		return newCommand;
+	} else {
+		return cmd;
+	}
+});
+
 TerminalShell.commands['shutdown'] = TerminalShell.commands['poweroff'] = function(terminal) {
 	if (this.sudo) {
 		terminal.print('Broadcast message from guest@xkcd');
