@@ -406,7 +406,8 @@ TerminalShell.commands['locate'] = function(terminal, what) {
 		'ninja': 'Ninja can not be found!',
 		'keys': 'Have you checked your coat pocket?',
 		'joke': 'Joke found on user.',
-		'problem': 'Problem exists between keyboard and chair.'
+		'problem': 'Problem exists between keyboard and chair.',
+		'raptor': 'BEHIND YOU!!!'
 	};
 	if (!oneLiner(terminal, what, keywords)) {
 		terminal.print('Locate what?');
