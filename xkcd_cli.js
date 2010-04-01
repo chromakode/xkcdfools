@@ -274,6 +274,28 @@ TerminalShell.commands['reddit'] = function(terminal, num) {
 	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=140&url='+encodeURIComponent(url)+'&newwindow=1" height="22" width="140" scrolling="no" frameborder="0"></iframe>'));
 };
 
+TerminalShell.commands['wget'] = TerminalShell.commands['curl'] = function(terminal, dest) {
+	terminal.setWorking(true);
+	var browser = $('<iframe>')
+		.attr('src', dest).width("100%").height(600)
+		.one('load', function() {
+			terminal.setWorking(false);
+		});
+	terminal.print(browser);
+	return browser;
+};
+
+TerminalShell.commands['irc'] = function(terminal, nick) {
+	$('.irc').slideUp('fast', function() {
+		$(this).remove();
+	});
+	var url = "http://widget.mibbit.com/?server=irc.foonetic.net&channel=%23xkcd";
+	if (nick) {
+		url += "&nick=" + encodeURIComponent(nick);
+	}
+	TerminalShell.commands['curl'](terminal, url).addClass('irc');
+};
+
 TerminalShell.commands['apt-get'] = function(terminal, subcmd) {
 	if (!this.sudo && (subcmd in {'update':true, 'upgrade':true, 'dist-upgrade':true})) {
 		terminal.print('E: Unable to lock the administration directory, are you root?');
