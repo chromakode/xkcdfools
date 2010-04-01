@@ -489,6 +489,21 @@ TerminalShell.commands['light'] = function(terminal, what) {
 	}
 };
 
+TerminalShell.commands['sleep'] = function(terminal, duration) {
+	duration = Number(duration);
+	if (!duration) {
+		duration = 5;
+	}
+	terminal.setWorking(true);
+	terminal.print("You take a nap.");
+	$('#screen').fadeOut(1000);
+	window.setTimeout(function() {
+		terminal.setWorking(false);
+		$('#screen').fadeIn();
+		terminal.print("You awake refreshed.");
+	}, 1000*duration);
+};
+
 // No peeking!
 TerminalShell.commands['help'] = TerminalShell.commands['halp'] = function(terminal) {
 	terminal.print('That would be cheating!');
