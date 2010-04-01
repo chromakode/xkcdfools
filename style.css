@@ -32,7 +32,8 @@ div#indicators span { background-color:#FFF; color:#000; display:none; }
 div#cform { height:1px; left:0; position:absolute; top:0; width:1px; }
 img { color:#FFF; font-size:x-small; } /* for broken images */
 img.comic { background:white; padding:5px; }
-iframe { margin:5px 0; }
+iframe { margin:0; border:none; }
+div.browser { margin:5px 2px; outline:2px solid gray; }
 form#searchform input[type=text] { background-color:#000; border:1px solid #FFF; color:#FFF; font-family:"Courier New",Courier,monospace; width:100px; }
 form#searchform input[type=submit] { background-color:#FFF; border:1px solid #000; color:#000; font-family:"Courier New",Courier,monospace; font-size:1em; }
 div#credit { position:absolute; bottom:0; color:#FFF; font-size:xx-small; opacity:.25; }

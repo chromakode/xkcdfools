@@ -309,11 +309,13 @@ TerminalShell.commands['reddit'] = function(terminal, num) {
 TerminalShell.commands['wget'] = TerminalShell.commands['curl'] = function(terminal, dest) {
 	if (dest) {
 		terminal.setWorking(true);
-		var browser = $('<iframe>')
-			.attr('src', dest).width("100%").height(600)
-			.one('load', function() {
-				terminal.setWorking(false);
-			});
+		var browser = $('<div>')
+			.addClass('browser')
+			.append($('<iframe>')
+					.attr('src', dest).width("100%").height(600)
+					.one('load', function() {
+						terminal.setWorking(false);
+					}));
 		terminal.print(browser);
 		return browser;
 	} else {
@@ -335,6 +337,10 @@ TerminalShell.commands['irc'] = function(terminal, nick) {
 	} else {
 		terminal.print('usage: irc <nick>');
 	}
+};
+
+TerminalShell.commands['unixkcd'] = function(terminal, nick) {
+	TerminalShell.commands['curl'](terminal, "http://www.xkcd.com/unixkcd/");
 };
 
 TerminalShell.commands['apt-get'] = function(terminal, subcmd) {
