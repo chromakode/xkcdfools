@@ -212,6 +212,9 @@ var Terminal = {
 					Terminal.setPos(Terminal.buffer.length);
 				}
 			})
+			.bind('keydown', 'tab', function(e) {
+				e.preventDefault();
+			})
 			.keyup(function(e) {
 				var keyName = $.hotkeys.specialKeys[e.which];
 				if (keyName in {'ctrl':true, 'alt':true, 'scroll':true}) {
