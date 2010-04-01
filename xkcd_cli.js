@@ -266,6 +266,19 @@ TerminalShell.commands['sudo'] = function(terminal) {
 	}
 };
 
+TerminalShell.commands['shutdown'] = TerminalShell.commands['poweroff'] = function(terminal) {
+	terminal.print('Broadcast message from guest@xkcd');
+	terminal.print();
+	terminal.print('The system is going down for maintenance NOW!');
+	return $('#screen').fadeOut();
+}; 
+
+TerminalShell.commands['restart'] = TerminalShell.commands['reboot'] = function(terminal) {
+	TerminalShell.commands['poweroff'](terminal).queue(function(next) {
+		window.location.reload();
+	});
+}; 
+
 function oneLiner(terminal, msg, msgmap) {
 	if (msg in msgmap) {
 		terminal.print(msgmap[msg]);
