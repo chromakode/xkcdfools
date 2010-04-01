@@ -587,7 +587,7 @@ $(document).ready(function() {
 				$('#screen').css({top:getRandomInt(-3, 3), left:getRandomInt(-3, 3)});
 			}, 100);
 		} else if (konamiCount == 4) {
-			$('#screen').css('background', 'black url(over9000.png) center no-repeat');
+			$('#screen').css('background', 'black url(/unixkcd/over9000.png) center no-repeat');
 		}
 		
 		$('<div>')
