@@ -7,7 +7,7 @@
 html, body { height:99%; }
 body { background-color:#000; font-family:"Courier New",Courier,monospace; margin:0 15px; overflow:hidden; padding:0; }
 pre, td, th, p, div { color:#FFF; font-family:"Courier New",Courier,monospace; font-size:1em; }
-div#screen { background-color:#000; height:99%; margin:2px; overflow:hidden; padding:0; }
+div#screen { height:99%; margin:2px; overflow:hidden; padding:0; }
 div, table { margin-bottom:1em; margin-top:0em; }
 pre, td, p { background-color:transparent; }
 code, p, span, td, th { font-size:1em; }

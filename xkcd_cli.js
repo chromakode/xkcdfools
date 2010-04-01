@@ -18,7 +18,7 @@ var xkcd = {
 	latest: null,
 	last: null,
 	cache: {},
-	proxy: "/xkcdfools/proxy.php?mode=native&url=http://xkcd.com",
+	proxy: "proxy.php?mode=native&url=http://xkcd.com",
 	
 	get: function(num, success, error) {
 		if (num == null) {
@@ -518,8 +518,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'kill': 'Terminator deployed to 1984',
 		'use the force luke': 'I believe you mean source.',
 		'use the source luke': 'I\'m not luke, you\'re luke!',
-		'ed': 'You are not a diety.',
-		'nano': 'You should really use an editor.'
+		'ed': 'You are not a diety.'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
@@ -575,6 +574,13 @@ $(document).ready(function() {
 	});
 	
 	$(document).konami(function(){
+		function shake(elems) {
+			elems.css('position', 'relative');
+			return window.setInterval(function() {
+				elems.css({top:getRandomInt(-3, 3), left:getRandomInt(-3, 3)});
+			}, 100);	
+		}
+		
 		if (konamiCount == 0) {
 			$('#screen').css('text-transform', 'uppercase');
 		} else if (konamiCount == 1) {
@@ -582,12 +588,9 @@ $(document).ready(function() {
 		} else if (konamiCount == 2) {
 			$('#screen').css('text-shadow', 'orangered 0 0 10px');
 		} else if (konamiCount == 3) {
-			$('#screen').css('position', 'relative');
-			window.setInterval(function() {
-				$('#screen').css({top:getRandomInt(-3, 3), left:getRandomInt(-3, 3)});
-			}, 100);
+			shake($('#screen'));
 		} else if (konamiCount == 4) {
-			$('#screen').css('background', 'black url(/unixkcd/over9000.png) center no-repeat');
+			$('#screen').css('background', 'url(/unixkcd/over9000.png) center no-repeat');
 		}
 		
 		$('<div>')
