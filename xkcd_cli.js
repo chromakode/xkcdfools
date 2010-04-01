@@ -149,7 +149,6 @@ TerminalShell.commands['restart'] = TerminalShell.commands['reboot'] = function(
 	});
 };
 
-
 function linkFile(url) {
 	return {type:'dir', enter:function() {
 		window.location = url;
@@ -450,6 +449,8 @@ TerminalShell.fallback = function(terminal, cmd) {
 			terminal.print($('<iframe width="800" height="600" src="http://www.robotfindskitten.net/rfk.swf"></iframe>'));
 		} else if (cmd == 'buy stuff') {
 			Filesystem['store'].enter();
+		} else if (cmd == ':(){ :|:& };:') {
+			Terminal.setWorking(true);
 		} else {
 			$.get("/unixkcd/missing", {cmd: cmd});
 			return false;
