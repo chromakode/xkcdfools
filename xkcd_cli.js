@@ -76,7 +76,13 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 				.load(function() {
 					terminal.print($('<h3>').text(data.num+": "+data.title));
 					$(this).fadeIn();
-					terminal.print($(this));
+					
+					var comic = $(this);
+					if (data.link) {
+						comic = $('<a>').attr('href', data.link).append($(this));
+					}
+					terminal.print(comic);
+					
 					terminal.setWorking(false);
 				})
 				.attr({src:data.img, alt:data.title, title:data.alt})
