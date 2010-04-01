@@ -286,6 +286,11 @@ TerminalShell.commands['man'] = function(terminal, what) {
 	}
 };
 
+// No peeking!
+TerminalShell.commands['help'] = function(terminal) {
+	terminal.print('You can do this.');
+}; 
+
 TerminalShell.fallback = function(terminal, cmd) {
 	oneliners = {
 		'make me a sandwich': 'What? Make it yourself.',
