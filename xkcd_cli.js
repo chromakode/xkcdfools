@@ -174,8 +174,8 @@ function linkFile(url) {
 Filesystem = {
 	'welcome.txt': {type:'file', read:function(terminal) {
 		terminal.print($('<h4>').text('Welcome to the unixkcd console.'));
-		terminal.print('To navigate, enter "next", "prev", "first", or "last".');
-		terminal.print('Try "help" for more information.');
+		terminal.print('To navigate the comics, enter "next", "prev", "first", "last", "display", or "random".');
+		terminal.print('Use "ls" and "cat" to navigate the filesystem.');
 	}},
 	'license.txt': {type:'file', read:function(terminal) {
 		terminal.print($('<p>').html('Client-side logic for Wordpress CLI theme :: <a href="http://thrind.xamai.ca/">R. McFarland, 2006, 2007, 2008</a>'));
@@ -447,6 +447,8 @@ TerminalShell.commands['go'] = Adventure.go = function(terminal, direction) {
 		Adventure.goTo(terminal, Adventure.location.exits[direction]);
 	} else if (!direction) {
 		terminal.print('Go where?');
+	} else if (direction == 'down') {
+		terminal.print("On our first date?");
 	} else {
 		terminal.print('You cannot go '+direction+'.');
 	}
@@ -480,7 +482,22 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'xyzzy': 'Nothing happens.',
 		'date': 'March 32nd',
 		'hello': 'Why hello there!',
-		'who': 'Who are you?'
+		'who': 'Who are you?',
+		'xkcd': 'Yes?',
+		'su': 'God mode activated. Remember, with great power comes great ... aw, screw it, go have fun.',
+		'fuck': 'I have a headache.',
+		'whoami': 'You are Richard Stallman.',
+		'nano': 'Seriously? Why don\'t you just use Notepad.exe? Or MS Paint?',
+		'top': 'It\'s up there --^',
+		'moo':'moo',
+		'ping': 'There is another submarine three miles ahead, bearing 225, forty fathoms down.',
+		'find': 'What do you want to find? Kitten would be nice.',
+		'hello':'Hello.','more':'Oh, yes! More! More!',
+		'your gay': 'Keep your hands off it!',
+		'hi':'Hi.','echo': 'Echo ... echo ... echo ...',
+		'bash': 'You bash your head against the wall. It\'s not very effective.','ssh': 'ssh, this is a library.',
+		'uname': 'Illudium Q-36 Explosive Space Modulator',
+		'finger': 'Mmmmmm...'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
