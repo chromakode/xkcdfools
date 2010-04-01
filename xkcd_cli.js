@@ -579,12 +579,18 @@ $(document).ready(function() {
 		} else if (konamiCount == 4) {
 			$('#screen').css('background', 'black url(over9000.png) center no-repeat');
 		}
+		
 		$('<div>')
 			.height('100%').width('100%')
 			.css({background:'white', position:'absolute', top:0, left:0})
 			.appendTo($('body'))
 			.show()
 			.fadeOut(1000);
+		
+		if (Terminal.buffer.substring(Terminal.buffer.length-2) == 'ba') {
+			Terminal.buffer = Terminal.buffer.substring(0, Terminal.buffer.length-2);
+			Terminal.updateInputDisplay();
+		}
 		TerminalShell.sudo = true;
 		konamiCount += 1;
 	});
