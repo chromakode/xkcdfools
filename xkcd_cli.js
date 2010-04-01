@@ -502,7 +502,8 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'hi':'Hi.','echo': 'Echo ... echo ... echo ...',
 		'bash': 'You bash your head against the wall. It\'s not very effective.','ssh': 'ssh, this is a library.',
 		'uname': 'Illudium Q-36 Explosive Space Modulator',
-		'finger': 'Mmmmmm...'
+		'finger': 'Mmmmmm...',
+		'kill': 'Terminator deployed to 1984'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
