@@ -147,7 +147,9 @@ TerminalShell.commands['shutdown'] = TerminalShell.commands['poweroff'] = functi
 	}
 };
 
-TerminalShell.commands['exit'] = TerminalShell.commands['quit'] = function(terminal) {
+TerminalShell.commands['logout'] =
+TerminalShell.commands['exit'] = 
+TerminalShell.commands['quit'] = function(terminal) {
 	terminal.print('Bye.');
 	$('#prompt, #cursor').hide();
 	terminal.promptActive = false;
