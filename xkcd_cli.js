@@ -328,7 +328,7 @@ TerminalShell.commands['apt-get'] = function(terminal, subcmd) {
 		if (subcmd == 'update') {
 			terminal.print('Reading package lists... Done');
 		} else if (subcmd == 'upgrade') {
-			if (($.browser.name == 'msie') || ($.browser.name == 'firefox' || $.browser.versionX < 3)) {
+			if (($.browser.name == 'msie') || ($.browser.name == 'firefox' && $.browser.versionX < 3)) {
 				terminal.print($('<p>').append($('<a>').attr('href', 'http://abetterbrowser.org/').text('To complete installation, click here.')));
 			} else {
 				terminal.print('This looks pretty good to me.');
