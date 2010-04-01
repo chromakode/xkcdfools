@@ -18,12 +18,13 @@ var xkcd = {
 	latest: null,
 	last: null,
 	cache: {},
+	proxy: "/xkcdfools/proxy.php?mode=native&url=http://xkcd.com",
 	
 	get: function(num, success, error) {
 		if (num == null) {
-			path = '/proxy.php?mode=native&url=http://xkcd.com/info.0.json';
+			path = '/info.0.json';
 		} else if (Number(num)) {
-			path = '/proxy.php?mode=native&url=http://xkcd.com/'+num+'/info.0.json';
+			path = '/'+num+'/info.0.json';
 		} else {
 			error(false);
 			return false;
@@ -34,7 +35,7 @@ var xkcd = {
 			success(this.cache[num]);
 		} else {
 			return $.ajax({
-				url: window.location+path,
+				url: this.proxy+path,
 				dataType: 'json',
 				success: $.proxy(function(data) {
 					this.last = this.cache[num] = data;
@@ -369,6 +370,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 	oneliners = {
 		'make me a sandwich': 'What? Make it yourself.',
 		'i read the source code': '<3',
+		'pwd': 'You are in a maze of twisty passages, all alike.',
 		'lpr': 'PC LOAD LETTER',
 		'hello joshua': 'How about a nice game of Global Thermonuclear War?',
 		'xyzzy': 'Nothing happens.',
@@ -395,6 +397,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 		} else if (cmd == 'buy stuff') {
 			Filesystem['store'].enter();
 		} else {
+			$.get("/unixkcd/missing", {cmd: cmd});
 			return false;
 		}
 	}
