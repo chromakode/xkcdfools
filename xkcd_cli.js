@@ -115,6 +115,11 @@ TerminalShell.commands['goto'] = function(terminal, subcmd) {
 
 
 
+function linkFile(url) {
+	return {type:'dir', enter:function() {
+		window.location = url;
+	}};
+}
 
 Filesystem = {
 	'welcome.txt': {type:'file', read:function(terminal) {
@@ -123,12 +128,32 @@ Filesystem = {
 		terminal.print('Try "help" for more information.');
 	}},
 	'license.txt': {type:'file', read:function(terminal) {
-		terminal.print('License stuff here.');
-	}},
-	'blog': {type:'dir', enter:function(terminal) {
-		window.location = 'http://blag.xkcd.com';
+		terminal.print($('<p>').html('Client-side logic for Wordpress CLI theme :: <a href="http://thrind.xamai.ca/">R. McFarland, 2006, 2007, 2008</a>'));
+		terminal.print($('<p>').html('jQuery rewrite and overhaul :: <a href="http://www.chromakode.com/">Chromakode, 2010</a>'));
+		terminal.print();
+		$.each([
+			'This program is free software; you can redistribute it and/or',
+			'modify it under the terms of the GNU General Public License',
+			'as published by the Free Software Foundation; either version 2',
+			'of the License, or (at your option) any later version.',
+			'',
+			'This program is distributed in the hope that it will be useful,',
+			'but WITHOUT ANY WARRANTY; without even the implied warranty of',
+			'MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the',
+			'GNU General Public License for more details.',
+			'',
+			'You should have received a copy of the GNU General Public License',
+			'along with this program; if not, write to the Free Software',
+			'Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.'
+		], function(num, line) {
+			terminal.print(line);
+		});
 	}}
 };
+Filesystem['blog'] = Filesystem['blag'] = linkFile('http://blag.xkcd.com');
+Filesystem['forums'] = Filesystem['fora'] = linkFile('http://forums.xkcd.com/');
+Filesystem['store'] = linkFile('http://store.xkcd.com/');
+Filesystem['about'] = linkFile('http://xkcd.com/about/');
 TerminalShell.pwd = Filesystem;
 
 TerminalShell.commands['cd'] = function(terminal, path) {
@@ -136,24 +161,31 @@ TerminalShell.commands['cd'] = function(terminal, path) {
 		if (this.pwd[path].type == 'dir') {
 			this.pwd[path].enter(terminal);
 		} else if (this.pwd[path].type == 'file') {
-			terminal.print('cd: "'+path+'" is not a directory');
+			terminal.print('cd: '+path+': Not a directory');
 		}
 	} else {
-		terminal.print('cd: The directory "'+path+'" does not exist');
+		terminal.print('cd: '+path+': No such file or directory');
 	}
 };
 
 TerminalShell.commands['ls'] = function(terminal, path) {
 	name_list = $('<ul>');
 	$.each(this.pwd, function(name, obj) {
+		if (obj.type == 'dir') {
+			name += '/';
+		}
 		name_list.append($('<li>').text(name));
 	});
 	terminal.print(name_list);
 };
 
 TerminalShell.commands['cat'] = function(terminal, path) {
-	if (path in this.pwd && this.pwd[path].type == 'file') {
-		this.pwd[path].read(terminal);
+	if (path in this.pwd) {
+		if (this.pwd[path].type == 'file') {
+			this.pwd[path].read(terminal);
+		} else if (this.pwd[path].type == 'dir') {
+			terminal.print('cat: '+path+': Is a directory');
+		}
 	} else if (pathFilename(path) == 'alt.txt') {
 		terminal.setWorking(true);
 		num = Number(path.match(/^\d+/));
@@ -280,6 +312,8 @@ TerminalShell.fallback = function(terminal, cmd) {
 			]));
 		} else if (cmd == 'find kitten') {
 			terminal.print($('<iframe width="800" height="600" src="http://www.robotfindskitten.net/rfk.swf"></iframe>'));
+		} else if (cmd == 'buy stuff') {
+			Filesystem['store'].enter();
 		} else {
 			return false;
 		}

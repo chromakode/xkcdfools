@@ -384,7 +384,9 @@ var Terminal = {
 	},
 
 	print: function(text) {
-		if (typeof text == 'string') {
+		if (!text) {
+			$('#display').append($('<div>'));
+		} else if (typeof text == 'string') {
 			$('#display').append($('<p>').text(text));
 		} else {
 			$('#display').append(text);
