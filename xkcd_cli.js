@@ -518,6 +518,9 @@ $(document).ready(function() {
 				Terminal.runCommand('cat welcome.txt');
 			});
 			Terminal.runCommand('display '+xkcd.latest.num+'/'+pathFilename(xkcd.latest.img));
+		}, function() {
+			Terminal.print($('<p>').addClass('error').text('Unable to load startup data. :-('));
+			Terminal.promptActive = true;
 		});
 	});
 });
