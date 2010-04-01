@@ -372,7 +372,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'lpr': 'PC LOAD LETTER',
 		'hello joshua': 'How about a nice game of Global Thermonuclear War?',
 		'xyzzy': 'Nothing happens.',
-		'date': 'March 22nd'
+		'date': 'March 32nd'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
