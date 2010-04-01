@@ -524,6 +524,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'kill': 'Terminator deployed to 1984',
 		'use the force luke': 'I believe you mean source.',
 		'use the source luke': 'I\'m not luke, you\'re luke!',
+		'serenity': 'You can\'t take the sky from me.',
 		'enable time travel': 'TARDIS error: Time Lord missing.',
 		'ed': 'You are not a diety.'
 	};
