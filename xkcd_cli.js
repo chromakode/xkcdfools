@@ -115,6 +115,40 @@ TerminalShell.commands['goto'] = function(terminal, subcmd) {
 };
 
 
+TerminalShell.commands['sudo'] = function(terminal) {
+	var cmd_args = Array.prototype.slice.call(arguments);
+	cmd_args.shift(); // terminal
+	if (cmd_args.join(' ') == 'make me a sandwich') {
+		terminal.print('Okay.');
+	} else {
+		var cmd_name = cmd_args.shift();
+		cmd_args.unshift(terminal);
+		cmd_args.push('sudo');
+		if (cmd_name in TerminalShell.commands) {
+			this.sudo = true;
+			this.commands[cmd_name].apply(this, cmd_args);
+			delete this.sudo;
+		} else if (!cmd_name) {
+			terminal.print('sudo what?');
+		} else {
+			terminal.print('sudo: '+cmd_name+': command not found');
+		}
+	}
+};
+
+TerminalShell.commands['shutdown'] = TerminalShell.commands['poweroff'] = function(terminal, sudo) {
+	terminal.print('Broadcast message from guest@xkcd');
+	terminal.print();
+	terminal.print('The system is going down for maintenance NOW!');
+	return $('#screen').fadeOut();
+}; 
+
+TerminalShell.commands['restart'] = TerminalShell.commands['reboot'] = function(terminal, sudo) {
+	TerminalShell.commands['poweroff'](terminal).queue(function(next) {
+		window.location.reload();
+	});
+};
+
 
 function linkFile(url) {
 	return {type:'dir', enter:function() {
@@ -202,6 +236,31 @@ TerminalShell.commands['cat'] = function(terminal, path) {
 	}
 };
 
+TerminalShell.commands['rm'] = function(terminal, flags, path) {
+	if (flags && flags[0] != '-') {
+		path = flags;
+	}
+	if (!path) {
+		terminal.print('rm: missing operand');
+	} else if (path in this.pwd) {
+		if (this.pwd[path].type == 'file') {
+			delete this.pwd[path];
+		} else if (this.pwd[path].type == 'dir') {
+			if (/r/.test(flags)) {
+				delete this.pwd[path];
+			} else {
+				terminal.print('rm: cannot remove '+path+': Is a directory');
+			}
+		}
+	} else if (flags == '-rf' && path == '/') {
+		if (this.sudo) {
+			TerminalShell.commands = {};
+		} else {
+			terminal.print('rm: cannot remove /: Permission denied');
+		}
+	}
+};
+
 TerminalShell.commands['reddit'] = function(terminal, num) {
 	num = Number(num);
 	if (num) {
@@ -212,8 +271,8 @@ TerminalShell.commands['reddit'] = function(terminal, num) {
 	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=140&url='+encodeURIComponent(url)+'&newwindow=1" height="22" width="140" scrolling="no" frameborder="0"></iframe>'));
 };
 
-TerminalShell.commands['apt-get'] = function(terminal, subcmd, sudo) {
-	if ((sudo!='sudo') && (subcmd in {'update':true, 'upgrade':true, 'dist-upgrade':true})) {
+TerminalShell.commands['apt-get'] = function(terminal, subcmd) {
+	if (!this.sudo && (subcmd in {'update':true, 'upgrade':true, 'dist-upgrade':true})) {
 		terminal.print('E: Unable to lock the administration directory, are you root?');
 	} else {
 		if (subcmd == 'update') {
@@ -248,36 +307,6 @@ TerminalShell.commands['apt-get'] = function(terminal, subcmd, sudo) {
 		}
 	}
 };
-
-TerminalShell.commands['sudo'] = function(terminal) {
-	var cmd_args = Array.prototype.slice.call(arguments);
-	cmd_args.shift(); // terminal
-	if (cmd_args.join(' ') == 'make me a sandwich') {
-		terminal.print('Okay.');
-	} else {
-		var cmd_name = cmd_args.shift();
-		cmd_args.unshift(terminal);
-		cmd_args.push('sudo');
-		if (cmd_name in TerminalShell.commands) {
-			this.commands[cmd_name].apply(this, cmd_args);
-		} else {
-			terminal.print('sudo: '+cmd_name+': command not found');
-		}
-	}
-};
-
-TerminalShell.commands['shutdown'] = TerminalShell.commands['poweroff'] = function(terminal) {
-	terminal.print('Broadcast message from guest@xkcd');
-	terminal.print();
-	terminal.print('The system is going down for maintenance NOW!');
-	return $('#screen').fadeOut();
-}; 
-
-TerminalShell.commands['restart'] = TerminalShell.commands['reboot'] = function(terminal) {
-	TerminalShell.commands['poweroff'](terminal).queue(function(next) {
-		window.location.reload();
-	});
-}; 
 
 function oneLiner(terminal, msg, msgmap) {
 	if (msg in msgmap) {
