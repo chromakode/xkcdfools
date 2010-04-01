@@ -240,7 +240,7 @@ var Terminal = {
 			if (state) {
 				$('#cursor').css({color:this.config.bg_color, backgroundColor:this.config.fg_color});
 			} else {
-				$('#cursor').css({color:this.config.fg_color, backgroundColor:this.config.bg_color});
+				$('#cursor').css({color:this.config.fg_color, background:'none'});
 			}
 		} else {
 			if (state) {

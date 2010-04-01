@@ -544,7 +544,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 	return true;
 };
 
-
+var konamiCount = 0;
 $(document).ready(function() {
 	Terminal.promptActive = false;
 	$('#screen').bind('cli-load', function(e) {
@@ -558,5 +558,30 @@ $(document).ready(function() {
 			Terminal.print($('<p>').addClass('error').text('Unable to load startup data. :-('));
 			Terminal.promptActive = true;
 		});
+	});
+	
+	$(document).konami(function(){
+		if (konamiCount == 0) {
+			$('#screen').css('text-transform', 'uppercase');
+		} else if (konamiCount == 1) {
+			$('#screen').css('text-shadow', 'gray 0 0 2px');
+		} else if (konamiCount == 2) {
+			$('#screen').css('text-shadow', 'orangered 0 0 10px');
+		} else if (konamiCount == 3) {
+			$('#screen').css('position', 'relative');
+			window.setInterval(function() {
+				$('#screen').css({top:getRandomInt(-3, 3), left:getRandomInt(-3, 3)});
+			}, 100);
+		} else if (konamiCount == 4) {
+			$('#screen').css('background', 'black url(over9000.png) center no-repeat');
+		}
+		$('<div>')
+			.height('100%').width('100%')
+			.css({background:'white', position:'absolute', top:0, left:0})
+			.appendTo($('body'))
+			.show()
+			.fadeOut(1000);
+		TerminalShell.sudo = true;
+		konamiCount += 1;
 	});
 });
