@@ -45,15 +45,6 @@ var xkcd = {
 	}
 };
 
-
-/*TerminalShell.commands['ls'] = function(terminal, path) {
-	if (path) {
-		
-	} else {
-		
-	}
-};*/
-
 var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 	function fail() {
 		terminal.print($('<p>').addClass('error').text('display: unable to open image "'+path+'": No such file or directory.'));
@@ -122,11 +113,47 @@ TerminalShell.commands['goto'] = function(terminal, subcmd) {
 	xkcdDisplay(terminal, 292);
 };
 
-TerminalShell.commands['cat'] = function(terminal, path) {
-	if (path == 'welcome.txt') {
+
+
+
+Filesystem = {
+	'welcome.txt': {type:'file', read:function(terminal) {
 		terminal.print($('<h4>').text('Welcome to the unixkcd console.'));
 		terminal.print('To navigate, enter "next", "prev", "first", or "last".');
 		terminal.print('Try "help" for more information.');
+	}},
+	'license.txt': {type:'file', read:function(terminal) {
+		terminal.print('License stuff here.');
+	}},
+	'blog': {type:'dir', enter:function(terminal) {
+		window.location = 'http://blag.xkcd.com';
+	}}
+};
+TerminalShell.pwd = Filesystem;
+
+TerminalShell.commands['cd'] = function(terminal, path) {
+	if (path in this.pwd) {
+		if (this.pwd[path].type == 'dir') {
+			this.pwd[path].enter(terminal);
+		} else if (this.pwd[path].type == 'file') {
+			terminal.print('cd: "'+path+'" is not a directory');
+		}
+	} else {
+		terminal.print('cd: The directory "'+path+'" does not exist');
+	}
+};
+
+TerminalShell.commands['ls'] = function(terminal, path) {
+	name_list = $('<ul>');
+	$.each(this.pwd, function(name, obj) {
+		name_list.append($('<li>').text(name));
+	});
+	terminal.print(name_list);
+};
+
+TerminalShell.commands['cat'] = function(terminal, path) {
+	if (path in this.pwd && this.pwd[path].type == 'file') {
+		this.pwd[path].read(terminal);
 	} else if (pathFilename(path) == 'alt.txt') {
 		terminal.setWorking(true);
 		num = Number(path.match(/^\d+/));
