@@ -361,7 +361,7 @@ TerminalShell.commands['light'] = function(terminal, what) {
 };
 
 // No peeking!
-TerminalShell.commands['help'] = function(terminal) {
+TerminalShell.commands['help'] = TerminalShell.commands['halp'] = function(terminal) {
 	terminal.print('You can do this.');
 }; 
 
