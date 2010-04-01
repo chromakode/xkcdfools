@@ -1,5 +1,5 @@
 function pathFilename(path) {
-	match = /\/([^\/]+)$/.exec(path);
+	var match = /\/([^\/]+)$/.exec(path);
 	if (match) {
 		return match[1];
 	}
@@ -235,7 +235,7 @@ TerminalShell.commands['cd'] = function(terminal, path) {
 
 TerminalShell.commands['dir'] =
 TerminalShell.commands['ls'] = function(terminal, path) {
-	name_list = $('<ul>');
+	var name_list = $('<ul>');
 	$.each(this.pwd, function(name, obj) {
 		if (obj.type == 'dir') {
 			name += '/';
