@@ -10,6 +10,10 @@ function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function randomChoice(items) {
+	return items[getRandomInt(0, items.length-1)];
+}
+
 var xkcd = {
 	latest: null,
 	last: null,
@@ -71,9 +75,9 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 				.hide()
 				.load(function() {
 					terminal.print($('<h3>').text(data.num+": "+data.title));
-					terminal.setWorking(false);
 					$(this).fadeIn();
 					terminal.print($(this));
+					terminal.setWorking(false);
 				})
 				.attr({src:data.img, alt:data.title, title:data.alt})
 				.addClass('comic');
@@ -93,15 +97,22 @@ TerminalShell.commands['prev'] = function(terminal) {
 };
 
 TerminalShell.commands['first'] = function(terminal) {
-	xkcdDisplay['display'](terminal, 1);
+	xkcdDisplay(terminal, 1);
 };
 
 TerminalShell.commands['last'] = function(terminal) {
-	xkcdDisplay['display'](terminal, xkcd.latest.num);
+	xkcdDisplay(terminal, xkcd.latest.num);
 };
 
 TerminalShell.commands['random'] = function(terminal) {
-	xkcdDisplay['display'](terminal, getRandomInt(1, xkcd.latest.num));
+	xkcdDisplay(terminal, getRandomInt(1, xkcd.latest.num));
+};
+
+TerminalShell.commands['goto'] = function(terminal, subcmd) {
+	$('#screen').one('cli-ready', function(e) {
+		terminal.print('Did you mean "display"?');
+	});
+	xkcdDisplay(terminal, 292);
 };
 
 TerminalShell.commands['cat'] = function(terminal, path) {
@@ -142,9 +153,9 @@ TerminalShell.commands['apt-get'] = function(terminal, subcmd, sudo) {
 			terminal.print('Reading package lists... Done');
 		} else if (subcmd == 'upgrade') {
 			if (($.browser.name == 'msie') || ($.browser.name == 'firefox' || $.browser.versionX < 3)) {
-				Terminal.print($('<p>').append($('<a>').attr('href', 'http://abetterbrowser.org/').text('To complete installation, click here.')));
+				terminal.print($('<p>').append($('<a>').attr('href', 'http://abetterbrowser.org/').text('To complete installation, click here.')));
 			} else {
-				Terminal.print('This looks pretty good to me.');
+				terminal.print('This looks pretty good to me.');
 			}
 		} else if (subcmd == 'dist-upgrade') {
 			var longNames = {'win':'Windows', 'mac':'OS X', 'linux':'Linux'};
@@ -198,6 +209,17 @@ TerminalShell.fallback = function(terminal, cmd) {
 	cmd = cmd.toLowerCase();
 	if (cmd in oneliners) {
 		terminal.print(oneliners[cmd]);
+	} else if (cmd == "asl" || cmd == "a/s/l") {
+		terminal.print(randomChoice([
+			'2/AMD64/Server Rack',
+			'328/M/Transylvania',
+			'6/M/Battle School',
+			'48/M/The White House',
+			'7/F/Rapture',
+			'Exactly your age/A gender you\'re attracted to/Far far away.',
+			'7,831/F/Lothlórien',
+			'42/M/FBI Field Office'
+		]));
 	} else {
 		return false;
 	}
@@ -210,10 +232,10 @@ $(document).ready(function() {
 	$('#screen').bind('cli-load', function(e) {
 		xkcd.get(null, function(data) {
 			xkcd.latest = data;
-			Terminal.runCommand('display '+xkcd.latest.num+'/'+pathFilename(xkcd.latest.img));
 			$('#screen').one('cli-ready', function(e) {
 				Terminal.runCommand('cat welcome.txt');
 			});
+			Terminal.runCommand('display '+xkcd.latest.num+'/'+pathFilename(xkcd.latest.img));
 		});
 	});
 });
