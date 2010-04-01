@@ -521,6 +521,13 @@ TerminalShell.fallback = function(terminal, cmd) {
 				'7,831/F/Lothlórien',
 				'42/M/FBI Field Office'
 			]));
+		} else if  (cmd == "hint") {
+			terminal.print(randomChoice([
+ 				'We offer some really nice polos.',
+ 				$('<p>').html('This terminal will remain available at <a href="http://xkcd.com/unixkcd/">http://xkcd.com/unixkcd/</a>'),
+ 				'Use the source, Luke!',
+ 				'There are cheat codes.'
+ 			]));
 		} else if (cmd == 'find kitten') {
 			terminal.print($('<iframe width="800" height="600" src="http://www.robotfindskitten.net/rfk.swf"></iframe>'));
 		} else if (cmd == 'buy stuff') {
