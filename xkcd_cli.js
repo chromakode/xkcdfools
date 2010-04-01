@@ -457,7 +457,7 @@ TerminalShell.commands['light'] = function(terminal, what) {
 
 // No peeking!
 TerminalShell.commands['help'] = TerminalShell.commands['halp'] = function(terminal) {
-	terminal.print('You can do this.');
+	terminal.print('That would be cheating!');
 }; 
 
 TerminalShell.fallback = function(terminal, cmd) {
