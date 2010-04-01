@@ -376,7 +376,7 @@ var Terminal = {
 	},
 	
 	scrollPage: function(num) {
-		$('#screen').animate({scrollTop: $('#screen').scrollTop() + num * $('#screen').height()}, this.config.scrollSpeed, 'linear');
+		$('#screen').animate({scrollTop: $('#screen').scrollTop() + num * ($('#screen').height() * .75)}, this.config.scrollSpeed, 'linear');
 	},
 
 	scrollLine: function(num) {
