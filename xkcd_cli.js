@@ -136,14 +136,20 @@ TerminalShell.commands['sudo'] = function(terminal) {
 	}
 };
 
-TerminalShell.commands['shutdown'] = TerminalShell.commands['poweroff'] = function(terminal, sudo) {
+TerminalShell.commands['shutdown'] = TerminalShell.commands['poweroff'] = function(terminal) {
 	terminal.print('Broadcast message from guest@xkcd');
 	terminal.print();
 	terminal.print('The system is going down for maintenance NOW!');
 	return $('#screen').fadeOut();
-}; 
+};
 
-TerminalShell.commands['restart'] = TerminalShell.commands['reboot'] = function(terminal, sudo) {
+TerminalShell.commands['exit'] = TerminalShell.commands['quit'] = function(terminal) {
+	terminal.print('Bye.');
+	$('#prompt, #cursor').hide();
+	terminal.promptActive = false;
+};
+
+TerminalShell.commands['restart'] = TerminalShell.commands['reboot'] = function(terminal) {
 	TerminalShell.commands['poweroff'](terminal).queue(function(next) {
 		window.location.reload();
 	});
@@ -202,6 +208,7 @@ TerminalShell.commands['cd'] = function(terminal, path) {
 	}
 };
 
+TerminalShell.commands['dir'] =
 TerminalShell.commands['ls'] = function(terminal, path) {
 	name_list = $('<ul>');
 	$.each(this.pwd, function(name, obj) {
@@ -453,7 +460,8 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'lpr': 'PC LOAD LETTER',
 		'hello joshua': 'How about a nice game of Global Thermonuclear War?',
 		'xyzzy': 'Nothing happens.',
-		'date': 'March 32nd'
+		'date': 'March 32nd',
+		'hello': 'Why hello there!'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
