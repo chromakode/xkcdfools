@@ -300,6 +300,18 @@ TerminalShell.commands['man'] = function(terminal, what) {
 	}
 };
 
+TerminalShell.commands['locate'] = function(terminal, what) {
+	keywords = {
+		'ninja': 'Ninja can not be found!',
+		'keys': 'Have you checked your coat pocket?',
+		'joke': 'Joke found on user.',
+		'problem': 'Problem exists between keyboard and chair.'
+	};
+	if (!oneLiner(terminal, what, keywords)) {
+		terminal.print('Locate what?');
+	}
+};
+
 Adventure = {
 	rooms: {
 		0:{description:'You are at a computer using unixkcd.', exits:{west:1, south:10}},
