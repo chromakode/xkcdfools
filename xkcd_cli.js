@@ -301,14 +301,18 @@ TerminalShell.commands['wget'] = TerminalShell.commands['curl'] = function(termi
 };
 
 TerminalShell.commands['irc'] = function(terminal, nick) {
-	$('.irc').slideUp('fast', function() {
-		$(this).remove();
-	});
-	var url = "http://widget.mibbit.com/?server=irc.foonetic.net&channel=%23xkcd";
 	if (nick) {
-		url += "&nick=" + encodeURIComponent(nick);
+		$('.irc').slideUp('fast', function() {
+			$(this).remove();
+		});
+		var url = "http://widget.mibbit.com/?server=irc.foonetic.net&channel=%23xkcd";
+		if (nick) {
+			url += "&nick=" + encodeURIComponent(nick);
+		}
+		TerminalShell.commands['curl'](terminal, url).addClass('irc');
+	} else {
+		terminal.print('usage: irc <nick>');
 	}
-	TerminalShell.commands['curl'](terminal, url).addClass('irc');
 };
 
 TerminalShell.commands['apt-get'] = function(terminal, subcmd) {
@@ -469,7 +473,8 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'hello joshua': 'How about a nice game of Global Thermonuclear War?',
 		'xyzzy': 'Nothing happens.',
 		'date': 'March 32nd',
-		'hello': 'Why hello there!'
+		'hello': 'Why hello there!',
+		'who': 'Who are you?'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
