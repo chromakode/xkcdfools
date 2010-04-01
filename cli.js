@@ -67,7 +67,7 @@ var TerminalShell = {
 	
 	process: function(terminal, cmd) {
 		var cmd_args = cmd.split(' ');
-		cmd_name = cmd_args.shift();
+		var cmd_name = cmd_args.shift();
 		cmd_args.unshift(terminal);
 		if (cmd_name in this.commands) {
 			this.commands[cmd_name].apply(this, cmd_args);

@@ -134,6 +134,56 @@ TerminalShell.commands['reddit'] = function(terminal, num) {
 	terminal.print($('<iframe src="http://www.reddit.com/static/button/button1.html?width=140&url='+encodeURIComponent(url)+'&newwindow=1" height="22" width="140" scrolling="no" frameborder="0"></iframe>'));
 };
 
+TerminalShell.commands['apt-get'] = function(terminal, subcmd, sudo) {
+	if ((sudo!='sudo') && (subcmd in {'update':true, 'upgrade':true, 'dist-upgrade':true})) {
+		terminal.print('E: Unable to lock the administration directory, are you root?');
+	} else {
+		if (subcmd == 'update') {
+			terminal.print('Reading package lists... Done');
+		} else if (subcmd == 'upgrade') {
+			if (($.browser.name == 'msie') || ($.browser.name == 'firefox' || $.browser.versionX < 3)) {
+				Terminal.print($('<p>').append($('<a>').attr('href', 'http://abetterbrowser.org/').text('To complete installation, click here.')));
+			} else {
+				Terminal.print('This looks pretty good to me.');
+			}
+		} else if (subcmd == 'dist-upgrade') {
+			var longNames = {'win':'Windows', 'mac':'OS X', 'linux':'Linux'};
+			var name = $.os.name;
+			if (name in longNames) {
+				name = longNames[name];
+			} else {
+				name = 'something fancy';
+			}
+			terminal.print('You are already running '+name+'.');
+		} else if (subcmd == 'moo') {
+			terminal.print('        (__)');
+			terminal.print('        (oo)');
+			terminal.print('  /------\\/ ');
+			terminal.print(' / |    ||  ');
+			terminal.print('*  /\\---/\\  ');
+			terminal.print('   ~~   ~~  '); 
+			terminal.print('...."Have you mooed today?"...');
+		} else if (!subcmd) {
+			terminal.print('This APT has Super Cow Powers.');
+		} else {
+			terminal.print('E: Invalid operation '+subcmd);
+		}
+	}
+};
+
+TerminalShell.commands['sudo'] = function(terminal) {
+	var cmd_args = Array.prototype.slice.call(arguments);
+	cmd_args.shift(); // terminal
+	var cmd_name = cmd_args.shift();
+	cmd_args.unshift(terminal);
+	cmd_args.push('sudo');
+	if (cmd_name in TerminalShell.commands) {
+		this.commands[cmd_name].apply(this, cmd_args);
+	} else {
+		terminal.print('sudo: '+cmd_name+': command not found');
+	}
+};
+
 TerminalShell.fallback = function(terminal, cmd) {
 	oneliners = {
 		'make me a sandwich': 'What? Make it yourself.',
@@ -153,6 +203,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 	}
 	return true;
 };
+
 
 $(document).ready(function() {
 	Terminal.promptActive = false;
