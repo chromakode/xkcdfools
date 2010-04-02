@@ -129,7 +129,7 @@ TerminalShell.commands['sudo'] = function(terminal) {
 		var cmd_name = cmd_args.shift();
 		cmd_args.unshift(terminal);
 		cmd_args.push('sudo');
-		if (cmd_name in TerminalShell.commands) {
+		if (TerminalShell.commands.hasOwnProperty(cmd_name)) {
 			this.sudo = true;
 			this.commands[cmd_name].apply(this, cmd_args);
 			delete this.sudo;
@@ -381,7 +381,7 @@ TerminalShell.commands['apt-get'] = function(terminal, subcmd) {
 };
 
 function oneLiner(terminal, msg, msgmap) {
-	if (msg in msgmap) {
+	if (msgmap.hasOwnProperty(msg)) {
 		terminal.print(msgmap[msg]);
 		return true;
 	} else {
