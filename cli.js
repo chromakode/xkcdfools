@@ -74,7 +74,7 @@ var TerminalShell = {
 			var cmd_args = cmd.split(' ');
 			var cmd_name = cmd_args.shift();
 			cmd_args.unshift(terminal);
-			if (cmd_name in this.commands) {
+			if (this.commands.hasOwnProperty(cmd_name)) {
 				this.commands[cmd_name].apply(this, cmd_args);
 			} else {
 				if (!(this.fallback && this.fallback(terminal, cmd))) {
