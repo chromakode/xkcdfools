@@ -18,13 +18,13 @@ var xkcd = {
 	latest: null,
 	last: null,
 	cache: {},
-	proxy: "proxy.php?mode=native&url=http://xkcd.com",
+	base: 'proxy.php?mode=native&url=http://xkcd.com/',
 	
 	get: function(num, success, error) {
 		if (num == null) {
-			path = '/info.0.json';
+			path = 'info.0.json';
 		} else if (Number(num)) {
-			path = '/'+num+'/info.0.json';
+			path = num+'/info.0.json';
 		} else {
 			error(false);
 			return false;
@@ -35,7 +35,7 @@ var xkcd = {
 			success(this.cache[num]);
 		} else {
 			return $.ajax({
-				url: this.proxy+path,
+				url: this.base+path,
 				dataType: 'json',
 				success: $.proxy(function(data) {
 					this.last = this.cache[num] = data;
