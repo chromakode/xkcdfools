@@ -1,54 +1,71 @@
 #!/usr/bin/env python
 import sys
-import os, os.path
-import shutil
+from os import mkdir, remove, listdir
+from os.path import isfile, isdir, join
+from shutil import copy, rmtree
 import subprocess
-from xml.dom import minidom
+import re
+from itertools import chain
 
-"""Minifies JS and copies to build/ directory""" 
+"""Minifies JS and copies files to build/ directory""" 
 
-join = os.path.join
+YUI = "tools/yuicompressor-2.4.2.jar"
+MINIFY_RE = re.compile(r'<!--\s*MINIFY:\s*-->((?:<script.+</script>|\s)+)<!--\s*TO:\s*(.+)-->')
+SCRIPT_RE = re.compile(r'<script type="text/javascript" src="([^"]+)"></script>')
 
 def touch_dir(path):
-    if not os.path.isdir(path):
-        print "Creating directory {0}".format(path)
+    if not isdir(path):
+        print "Creating directory ({0})...".format(path)
+        mkdir(path)
         
-
 def clean(build_dir):
-    if os.path.isdir(build_dir):
-        print "Removing existing directory: {0}".format(build_dir)
-        shutil.rmtree(build_dir)
+    if isdir(build_dir):
+        print "Removing existing directory ({0}).".format(build_dir)
+        rmtree(build_dir)
 
-def build(build_dir, minified_name):
-    to_minify = []
+def build(src_dir, build_dir):
+    to_minify = {}
     
     touch_dir(build_dir)
     
-    print "Writing index.html"
-    document = minidom.parse("src/index.html")
-    mini_script = document.createElement("script")
-    mini_script.setAttribute("src", minified_name)
-    for script in document.getElementsByTagName("script"):
-        src = script.getAttribute("src")
-        
-        # Minify only JS with relative paths
-        if not src.startswith("http"):
-            to_minify.append(join("src", src))
-            script.parentNode.replaceChild(mini_script, script)
-            
-    document.writexml(open(join(build_dir, "index.html"), "w"))
+    print "Writing index.html..."
+    index_data = open(join(src_dir, "index.html")).read()
+    def sub_minify(match):
+        scripts, to_script = match.groups()
+        to_src = SCRIPT_RE.match(to_script).group(1)
+        for src in SCRIPT_RE.findall(scripts):
+            # Minify only JS with relative paths
+            if not src.startswith("http"):
+                to_minify.setdefault(to_src, []).append(join(src_dir, src))
+        return to_script
+    with open(join(build_dir, "index.html"), "w") as f:
+        f.write(MINIFY_RE.sub(sub_minify, index_data))
     
-    print "Minifying: {0}".format(", ".join(to_minify))
-    minified_path = join(build_dir, minified_name)
-    if os.path.isfile(minified_path):
-        os.remove(minified_path)
-    mini_file = open(minified_path, "a")
-    for mini_src in to_minify:        
-        subprocess.call(["java", "-jar", "tools/yuicompressor-2.4.2.jar", mini_src],
-                        stdout=mini_file)
+    print "Minifying..."
+    for mini_name, mini_scripts in to_minify.iteritems():
+        mini_path = join(build_dir, mini_name)
+        if isfile(mini_path):
+            remove(mini_path)
+        mini_file = open(mini_path, "a")
+        for mini_script in mini_scripts:
+            if isfile(mini_script):
+                print "  + {0}".format(mini_script)
+                subprocess.call(["java", "-jar", YUI, mini_script],
+                                stdout=mini_file)
+        print "--> {0}".format(mini_path)
+        
+    print "Copying data files..."
+    minified_paths = set(chain(*to_minify.values()))
+    for filename in listdir(src_dir):
+        filepath = join(src_dir, filename)
+        if not filepath == "src/index.html" and not filepath in minified_paths:
+            print "  + {0}".format(filepath)
+            copy(filepath, build_dir)
+    
+    print "Build complete."
     
 if __name__=="__main__":
     if len(sys.argv) == 2 and sys.argv[1] == "clean":
         clean("build")
     else:
-        build("build", "xkcd_cli_all.js")
+        build("src", "build")
