@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 from os import mkdir, remove, listdir
-from os.path import isfile, isdir, join
+from os.path import isfile, isdir, join, normpath
 from shutil import copy, rmtree
 import subprocess
 import re
@@ -36,7 +36,7 @@ def build(src_dir, build_dir):
         for src in SCRIPT_RE.findall(scripts):
             # Minify only JS with relative paths
             if not src.startswith("http"):
-                to_minify.setdefault(to_src, []).append(join(src_dir, src))
+                to_minify.setdefault(to_src, []).append(normpath(join(src_dir, src)))
         return to_script
     with open(join(build_dir, "index.html"), "w") as f:
         f.write(MINIFY_RE.sub(sub_minify, index_data))
