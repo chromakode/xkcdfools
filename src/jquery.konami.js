@@ -5,28 +5,6 @@
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php
  *   http://www.gnu.org/licenses/gpl.html
- *
- * Usage:
- *  // konami code unlocks the tetris
- *  $('#tetris').konami(function(){
- *     $(this).show();
- *  });
- * 
- *
- *  // enable all weapons on 'idkfa'.
- *  // note that each weapon must be unlocked by its own code entry
- *  $('.weapon').konami(function(){
- *     $(this).addClass('enabled');
- *  }, {'code':[73, 68, 75, 70, 65]});
- *
- *
- *  // listens on any element that can trigger a keyup event.
- *  // unlocks all weapons at once
- *  $(document).konami(function(){
- *     $('.weapon').addClass('enabled');
- *  }, {'code':[73, 68, 75, 70, 65]});
- *
- *
  */
 (function($){
     $.fn.konami             = function( fn, params ) {
