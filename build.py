@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import with_statement
+
 import sys
 from os import mkdir, remove, listdir
 from os.path import isfile, isdir, join, normpath
@@ -15,12 +17,12 @@ SCRIPT_RE = re.compile(r'<script type="text/javascript" src="([^"]+)"></script>'
 
 def touch_dir(path):
     if not isdir(path):
-        print "Creating directory ({0})...".format(path)
+        print "Creating directory (%s)..." % path
         mkdir(path)
         
 def clean(build_dir):
     if isdir(build_dir):
-        print "Removing existing directory ({0}).".format(build_dir)
+        print "Removing existing directory (%s)." % build_dir
         rmtree(build_dir)
 
 def build(src_dir, build_dir):
@@ -49,17 +51,17 @@ def build(src_dir, build_dir):
         mini_file = open(mini_path, "a")
         for mini_script in mini_scripts:
             if isfile(mini_script):
-                print "  + {0}".format(mini_script)
+                print "  + %s" % mini_script
                 subprocess.call(["java", "-jar", YUI, mini_script],
                                 stdout=mini_file)
-        print "--> {0}".format(mini_path)
+        print "--> %s" % mini_path
         
     print "Copying data files..."
     minified_paths = set(chain(*to_minify.values()))
     for filename in listdir(src_dir):
         filepath = join(src_dir, filename)
         if not filepath == "src/index.html" and not filepath in minified_paths:
-            print "  + {0}".format(filepath)
+            print "  + %s" % filepath
             copy(filepath, build_dir)
     
     print "Build complete."
