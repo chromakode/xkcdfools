@@ -18,13 +18,13 @@ var xkcd = {
 	latest: null,
 	last: null,
 	cache: {},
-	base: '/',
+	base: 'http://dynamic.xkcd.com/api-0/jsonp/comic/',
 	
 	get: function(num, success, error) {
 		if (num == null) {
-			path = 'info.0.json';
+			path = '';
 		} else if (Number(num)) {
-			path = num+'/info.0.json';
+			path = String(num);
 		} else {
 			error(false);
 			return false;
@@ -36,7 +36,7 @@ var xkcd = {
 		} else {
 			return $.ajax({
 				url: this.base+path,
-				dataType: 'json',
+				dataType: 'jsonp',
 				success: $.proxy(function(data) {
 					this.last = this.cache[num] = data;
 					success(data);
