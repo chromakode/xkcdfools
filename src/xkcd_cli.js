@@ -19,7 +19,7 @@ var xkcd = {
 	last: null,
 	cache: {},
 	base: 'http://dynamic.xkcd.com/api-0/jsonp/comic/',
-	
+
 	get: function(num, success, error) {
 		if (num == null) {
 			path = '';
@@ -29,7 +29,7 @@ var xkcd = {
 			error(false);
 			return false;
 		}
-		
+
 		if (num in this.cache) {
 			this.last = this.cache[num];
 			success(this.cache[num]);
@@ -51,12 +51,12 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 		terminal.print($('<p>').addClass('error').text('display: unable to open image "'+path+'": No such file or directory.'));
 		terminal.setWorking(false);
 	}
-			
+
 	if (path) {
 		path = String(path);
 		num = Number(path.match(/^\d+/));
 		filename = pathFilename(path);
-		
+
 		if (num > xkcd.latest.num) {
 			terminal.print("Time travel mode not enabled.");
 			return;
@@ -64,7 +64,7 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 	} else {
 		num = xkcd.last.num;
 	}
-	
+
 	terminal.setWorking(true);
 	xkcd.get(num, function(data) {
 		if (!filename || (filename == pathFilename(data.img))) {
@@ -73,13 +73,13 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 				.load(function() {
 					terminal.print($('<h3>').text(data.num+": "+data.title));
 					$(this).fadeIn();
-					
+
 					var comic = $(this);
 					if (data.link) {
 						comic = $('<a>').attr('href', data.link).append($(this));
 					}
 					terminal.print(comic);
-					
+
 					terminal.setWorking(false);
 				})
 				.attr({src:data.img, alt:data.title, title:data.alt})
@@ -163,7 +163,7 @@ TerminalShell.commands['shutdown'] = TerminalShell.commands['poweroff'] = functi
 };
 
 TerminalShell.commands['logout'] =
-TerminalShell.commands['exit'] = 
+TerminalShell.commands['exit'] =
 TerminalShell.commands['quit'] = function(terminal) {
 	terminal.print('Bye.');
 	$('#prompt, #cursor').hide();
@@ -294,7 +294,7 @@ TerminalShell.commands['rm'] = function(terminal, flags, path) {
 
 TerminalShell.commands['cheat'] = function(terminal) {
 	terminal.print($('<a>').text('*** FREE SHIPPING ENABLED ***').attr('href', 'http://store.xkcd.com/'));
-}; 
+};
 
 TerminalShell.commands['reddit'] = function(terminal, num) {
 	num = Number(num);
@@ -370,7 +370,7 @@ TerminalShell.commands['apt-get'] = function(terminal, subcmd) {
 			terminal.print('  /------\\/ ');
 			terminal.print(' / |    ||  ');
 			terminal.print('*  /\\---/\\  ');
-			terminal.print('   ~~   ~~  '); 
+			terminal.print('   ~~   ~~  ');
 			terminal.print('...."Have you mooed today?"...');
 		} else if (!subcmd) {
 			terminal.print('This APT has Super Cow Powers.');
@@ -436,12 +436,12 @@ Adventure = {
 		11:{description:'Bed. This is where you sleep.', exits:{north:10}},
 		666:{description:'You\'re dead!'}
 	},
-	
+
 	status: {
 		alive: true,
 		lamp: false
 	},
-	
+
 	goTo: function(terminal, id) {
 		Adventure.location = Adventure.rooms[id];
 		Adventure.look(terminal);
@@ -453,10 +453,10 @@ Adventure = {
 Adventure.location = Adventure.rooms[0];
 
 TerminalShell.commands['look'] = Adventure.look = function(terminal) {
-	terminal.print(Adventure.location.description);	
+	terminal.print(Adventure.location.description);
 	if (Adventure.location.exits) {
 		terminal.print();
-		
+
 		var possibleDirections = [];
 		$.each(Adventure.location.exits, function(name, id) {
 			possibleDirections.push(name);
@@ -508,7 +508,7 @@ TerminalShell.commands['sleep'] = function(terminal, duration) {
 // No peeking!
 TerminalShell.commands['help'] = TerminalShell.commands['halp'] = function(terminal) {
 	terminal.print('That would be cheating!');
-}; 
+};
 
 TerminalShell.fallback = function(terminal, cmd) {
 	oneliners = {
@@ -546,7 +546,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
-	
+
 	cmd = cmd.toLowerCase();
 	if (!oneLiner(terminal, cmd, oneliners)) {
 		if (cmd == "asl" || cmd == "a/s/l") {
@@ -603,15 +603,15 @@ $(document).ready(function() {
 			}
 		}, noData);
 	});
-	
+
 	$(document).konami(function(){
 		function shake(elems) {
 			elems.css('position', 'relative');
 			return window.setInterval(function() {
 				elems.css({top:getRandomInt(-3, 3), left:getRandomInt(-3, 3)});
-			}, 100);	
+			}, 100);
 		}
-		
+
 		if (konamiCount == 0) {
 			$('#screen').css('text-transform', 'uppercase');
 		} else if (konamiCount == 1) {
@@ -623,14 +623,14 @@ $(document).ready(function() {
 		} else if (konamiCount == 4) {
 			$('#screen').css('background', 'url(/unixkcd/over9000.png) center no-repeat');
 		}
-		
+
 		$('<div>')
 			.height('100%').width('100%')
 			.css({background:'white', position:'absolute', top:0, left:0})
 			.appendTo($('body'))
 			.show()
 			.fadeOut(1000);
-		
+
 		if (Terminal.buffer.substring(Terminal.buffer.length-2) == 'ba') {
 			Terminal.buffer = Terminal.buffer.substring(0, Terminal.buffer.length-2);
 			Terminal.updateInputDisplay();

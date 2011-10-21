@@ -14,7 +14,7 @@ Credits
 
 * Many thanks to [Rod McFarland](http://thrind.xamai.ca/) for his original [CLI2](http://code.google.com/p/wordpress-cli/). The JavaScript CLI implementation in cli.js is a heavily modified version of the CLI2 client-side logic. CLI2 is Copyright © [Rod McFarland](http://thrind.xamai.ca/), 2006, 2007, 2008.
 
-* The bundled version of [YUI Compressor](http://developer.yahoo.com/yui/compressor/) is  Copyright © 2007-2009, [Yahoo! Inc](http://yahoo.com). 
+* The bundled version of [YUI Compressor](http://developer.yahoo.com/yui/compressor/) is  Copyright © 2007-2009, [Yahoo! Inc](http://yahoo.com).
 
 
 License

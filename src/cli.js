@@ -1,8 +1,8 @@
-/* 	
+/*
  Client-side logic for Wordpress CLI theme
  R. McFarland, 2006, 2007, 2008
  http://thrind.xamai.ca/
- 
+
  jQuery rewrite and overhaul
  Chromakode, 2010
  http://www.chromakode.com/
@@ -57,14 +57,14 @@ var TerminalShell = {
 				cmd_list.append($('<li>').text(name));
 			});
 			terminal.print(cmd_list);
-		}, 
+		},
 		clear: function(terminal) {
 			terminal.clear();
 		}
 	},
 	filters: [],
 	fallback: null,
-	
+
 	lastCommand: null,
 	process: function(terminal, cmd) {
 		try {
@@ -99,9 +99,9 @@ var Terminal = {
 	_cursorBlinkTimeout: null,
 	spinnerIndex: 0,
 	_spinnerTimeout: null,
-	
+
 	output: TerminalShell,
-	
+
 	config: {
 		scrollStep:			20,
 		scrollSpeed:		100,
@@ -114,34 +114,34 @@ var Terminal = {
 		spinnerSpeed:		250,
 		typingSpeed:		50
 	},
-	
+
 	sticky: {
 		keys: {
 			ctrl: false,
 			alt: false,
 			scroll: false
 		},
-		
+
 		set: function(key, state) {
 			this.keys[key] = state;
 			$('#'+key+'-indicator').toggle(this.keys[key]);
 		},
-		
+
 		toggle: function(key) {
 			this.set(key, !this.keys[key]);
 		},
-		
+
 		reset: function(key) {
 			this.set(key, false);
 		},
-		
+
 		resetAll: function(key) {
 			$.each(this.keys, $.proxy(function(name, value) {
 				this.reset(name);
 			}, this));
 		}
 	},
-	
+
 	init: function() {
 		function ifActive(func) {
 			return function() {
@@ -150,20 +150,20 @@ var Terminal = {
 				}
 			};
 		}
-		
+
 		$(document)
-			.keypress($.proxy(ifActive(function(e) {	
-				if (e.which >= 32 && e.which <= 126) {   
+			.keypress($.proxy(ifActive(function(e) {
+				if (e.which >= 32 && e.which <= 126) {
 					var character = String.fromCharCode(e.which);
 					var letter = character.toLowerCase();
 				} else {
 					return;
 				}
-				
+
 				if ($.browser.opera && !(/[\w\s]/.test(character))) {
 					return; // sigh.
 				}
-				
+
 				if (this.sticky.keys.ctrl) {
 					if (letter == 'w') {
 						this.deleteWord();
@@ -239,7 +239,7 @@ var Terminal = {
 					Terminal.sticky.resetAll();
 				}
 			});
-		
+
 		$(window).resize(function(e) { $('#screen').scrollTop($('#screen').attr('scrollHeight')); });
 
 		this.setCursorState(true);
@@ -249,7 +249,7 @@ var Terminal = {
 			$('#screen').triggerHandler('cli-load');
 		});
 	},
-	
+
 	setCursorState: function(state, fromTimeout) {
 		this.cursorBlinkState = state;
 		if (this.config.cursor_style == 'block') {
@@ -265,7 +265,7 @@ var Terminal = {
 				$('#cursor').css('textDecoration', 'none');
 			}
 		}
-		
+
 		// (Re)schedule next blink.
 		if (!fromTimeout && this._cursorBlinkTimeout) {
 			window.clearTimeout(this._cursorBlinkTimeout);
@@ -275,7 +275,7 @@ var Terminal = {
 			this.setCursorState(!this.cursorBlinkState, true);
 		},this), this.config.cursor_blink_time);
 	},
-	
+
 	updateInputDisplay: function() {
 		var left = '', underCursor = ' ', right = '';
 
@@ -304,17 +304,17 @@ var Terminal = {
 		$('#prompt').text(this.config.prompt);
 		return;
 	},
-	
+
 	clearInputBuffer: function() {
 		this.buffer = '';
 		this.pos = 0;
 		this.updateInputDisplay();
 	},
-	
+
 	clear: function() {
 		$('#display').html('');
 	},
-	
+
 	addCharacter: function(character) {
 		var left = this.buffer.substr(0, this.pos);
 		var right = this.buffer.substr(this.pos, this.buffer.length - this.pos);
@@ -323,7 +323,7 @@ var Terminal = {
 		this.updateInputDisplay();
 		this.setCursorState(true);
 	},
-	
+
 	deleteCharacter: function(forward) {
 		var offset = forward ? 1 : 0;
 		if (this.pos >= (1 - offset)) {
@@ -335,7 +335,7 @@ var Terminal = {
 		}
 		this.setCursorState(true);
 	},
-	
+
 	deleteWord: function() {
 		if (this.pos > 0) {
 			var ncp = this.pos;
@@ -350,11 +350,11 @@ var Terminal = {
 		}
 		this.setCursorState(true);
 	},
-	
+
 	moveCursor: function(val) {
 		this.setPos(this.pos + val);
 	},
-	
+
 	setPos: function(pos) {
 		if ((pos >= 0) && (pos <= this.buffer.length)) {
 			this.pos = pos;
@@ -362,7 +362,7 @@ var Terminal = {
 		}
 		this.setCursorState(true);
 	},
-	
+
 	moveHistory: function(val) {
 		var newpos = this.historyPos + val;
 		if ((newpos >= 0) && (newpos <= this.history.length)) {
@@ -378,7 +378,7 @@ var Terminal = {
 		}
 		this.setCursorState(true);
 	},
-	
+
 	addHistory: function(cmd) {
 		this.historyPos = this.history.push(cmd);
 	},
@@ -390,7 +390,7 @@ var Terminal = {
 	jumpToTop: function() {
 		$('#screen').animate({scrollTop: 0}, this.config.scrollSpeed, 'linear');
 	},
-	
+
 	scrollPage: function(num) {
 		$('#screen').animate({scrollTop: $('#screen').scrollTop() + num * ($('#screen').height() * .75)}, this.config.scrollSpeed, 'linear');
 	},
@@ -410,7 +410,7 @@ var Terminal = {
 		}
 		this.jumpToBottom();
 	},
-	
+
 	processInputBuffer: function(cmd) {
 		this.print($('<p>').addClass('command').text(this.config.prompt + this.buffer));
 		var cmd = trim(this.buffer);
@@ -425,12 +425,12 @@ var Terminal = {
 			return false;
 		}
 	},
-	
+
 	setPromptActive: function(active) {
 		this.promptActive = active;
 		$('#inputline').toggle(this.promptActive);
 	},
-	
+
 	setWorking: function(working) {
 		if (working && !this._spinnerTimeout) {
 			$('#display .command:last-child').add('#bottomline').first().append($('#spinner'));
@@ -451,11 +451,11 @@ var Terminal = {
 			$('#screen').triggerHandler('cli-ready');
 		}
 	},
-	
+
 	runCommand: function(text) {
 		var index = 0;
 		var mine = false;
-		
+
 		this.promptActive = false;
 		var interval = window.setInterval($.proxy(function typeCharacter() {
 			if (index < text.length) {
