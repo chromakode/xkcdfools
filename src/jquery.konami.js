@@ -16,19 +16,19 @@
         });
         return this;
     };
-    
+
     $.fn.konami.params      = {
         'code'      : [38, 38, 40, 40, 37, 39, 37, 39, 66, 65],
         'step'      : 0
     };
-    
+
     $.fn.konami.checkCode   = function( event, params, tgt ) {
         if(event.keyCode == params.code[params.step]) {
             params.step++;
         } else {
             params.step     = 0;
         }
-        
+
         if(params.step == params.code.length) {
             tgt.trigger('konami');
             params.step     = 0;

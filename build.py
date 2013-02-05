@@ -9,7 +9,7 @@ import subprocess
 import re
 from itertools import chain
 
-"""Minifies JS and copies files to build/ directory""" 
+"""Minifies JS and copies files to build/ directory"""
 
 YUI = "tools/yuicompressor-2.4.2.jar"
 MINIFY_RE = re.compile(r'<!--\s*MINIFY:\s*-->((?:<script.+</script>|\s)+)<!--\s*TO:\s*(.+)-->')
@@ -19,7 +19,7 @@ def touch_dir(path):
     if not isdir(path):
         print "Creating directory (%s)..." % path
         mkdir(path)
-        
+
 def clean(build_dir):
     if isdir(build_dir):
         print "Removing existing directory (%s)." % build_dir
@@ -27,9 +27,9 @@ def clean(build_dir):
 
 def build(src_dir, build_dir):
     to_minify = {}
-    
+
     touch_dir(build_dir)
-    
+
     print "Writing index.html..."
     index_data = open(join(src_dir, "index.html")).read()
     def sub_minify(match):
@@ -42,7 +42,7 @@ def build(src_dir, build_dir):
         return to_script
     with open(join(build_dir, "index.html"), "w") as f:
         f.write(MINIFY_RE.sub(sub_minify, index_data))
-    
+
     print "Minifying..."
     for mini_name, mini_scripts in to_minify.iteritems():
         mini_path = join(build_dir, mini_name)
@@ -55,7 +55,7 @@ def build(src_dir, build_dir):
                 subprocess.call(["java", "-jar", YUI, mini_script],
                                 stdout=mini_file)
         print "--> %s" % mini_path
-        
+
     print "Copying data files..."
     minified_paths = set(chain(*to_minify.values()))
     for filename in listdir(src_dir):
@@ -63,9 +63,9 @@ def build(src_dir, build_dir):
         if not filepath == "src/index.html" and not filepath in minified_paths:
             print "  + %s" % filepath
             copy(filepath, build_dir)
-    
+
     print "Build complete."
-    
+
 if __name__=="__main__":
     if len(sys.argv) == 2 and sys.argv[1] == "clean":
         clean("build")
