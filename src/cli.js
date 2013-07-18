@@ -99,6 +99,7 @@ var Terminal = {
 	_cursorBlinkTimeout: null,
 	spinnerIndex: 0,
 	_spinnerTimeout: null,
+	lastcompletion: '',
 	
 	output: TerminalShell,
 	
@@ -230,6 +231,7 @@ var Terminal = {
 			}))
 			.bind('keydown', 'tab', function(e) {
 				e.preventDefault();
+				Terminal.autocomplete()
 			})
 			.keyup(function(e) {
 				var keyName = $.hotkeys.specialKeys[e.which];
@@ -467,6 +469,24 @@ var Terminal = {
 				this.processInputBuffer();
 			}
 		}, this), this.config.typingSpeed);
+	},
+
+	autocomplete: function() {
+		var lookup = this.buffer.substr(0,this.pos)
+		if (lookup.length > 0 && this.output.commands) {			
+			var potentials = Object.keys(this.output.commands).filter(
+				$.proxy(function (x) {
+					return lookup == x.substr(0,lookup.length)
+				}), this).sort();
+
+			if (potentials.length > 0) {
+				var newloc = potentials.indexOf(this.lastcompletion) + 1
+				if (newloc == potentials.length) { newloc = 0; }
+				this.lastcompletion = potentials[newloc];
+				this.buffer = this.lastcompletion;
+				this.updateInputDisplay();
+			}
+		}
 	}
 };
 
