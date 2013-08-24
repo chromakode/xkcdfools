@@ -217,6 +217,7 @@ Filesystem = {
 };
 Filesystem['blog'] = Filesystem['blag'] = linkFile('http://blag.xkcd.com');
 Filesystem['forums'] = Filesystem['fora'] = linkFile('http://forums.xkcd.com/');
+Filesystem['whatif'] = Filesystem['what-if'] = linkFile('http://what-if.xkcd.com')
 Filesystem['store'] = linkFile('http://store.xkcd.com/');
 Filesystem['about'] = linkFile('http://xkcd.com/about/');
 TerminalShell.pwd = Filesystem;
