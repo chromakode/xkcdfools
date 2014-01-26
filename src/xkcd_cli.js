@@ -123,21 +123,17 @@ TerminalShell.commands['goto'] = function(terminal, subcmd) {
 TerminalShell.commands['sudo'] = function(terminal) {
 	var cmd_args = Array.prototype.slice.call(arguments);
 	cmd_args.shift(); // terminal
-	if (cmd_args.join(' ') == 'make me a sandwich') {
-		terminal.print('Okay.');
+	var cmd_name = cmd_args.shift();
+	cmd_args.unshift(terminal);
+	cmd_args.push('sudo');
+	if (TerminalShell.commands.hasOwnProperty(cmd_name)) {
+		this.sudo = true;
+		this.commands[cmd_name].apply(this, cmd_args);
+		delete this.sudo;
+	} else if (!cmd_name) {
+		terminal.print('sudo what?');
 	} else {
-		var cmd_name = cmd_args.shift();
-		cmd_args.unshift(terminal);
-		cmd_args.push('sudo');
-		if (TerminalShell.commands.hasOwnProperty(cmd_name)) {
-			this.sudo = true;
-			this.commands[cmd_name].apply(this, cmd_args);
-			delete this.sudo;
-		} else if (!cmd_name) {
-			terminal.print('sudo what?');
-		} else {
-			terminal.print('sudo: '+cmd_name+': command not found');
-		}
+		terminal.print('sudo: '+cmd_name+': command not found');
 	}
 };
 
@@ -508,12 +504,30 @@ TerminalShell.commands['sleep'] = function(terminal, duration) {
 // No peeking!
 TerminalShell.commands['help'] = TerminalShell.commands['halp'] = function(terminal) {
 	terminal.print('That would be cheating!');
-}; 
+};
+
+TerminalShell.commands['make'] = function(terminal, target, a, sandwich) {
+	if (target) {
+		if (target == 'love') {
+			terminal.print('I put on my robe and wizard hat.');
+		} else if (target == 'war') {
+			terminal.print('Not love?');
+		} else if (target == 'me' && a == 'a' && sandwich == 'sandwich') {
+			if (this.sudo) {
+				terminal.print('Okay.');
+			} else {
+				terminal.print('What? Make it yourself.');
+			}
+		} else {
+			terminal.print('make: *** Don\'t know how to make '+target+'.  Stop.');
+		}
+	} else {
+		terminal.print('make: *** No targets specified and no makefile found.  Stop.');
+	}
+};
 
 TerminalShell.fallback = function(terminal, cmd) {
 	oneliners = {
-		'make me a sandwich': 'What? Make it yourself.',
-		'make love': 'I put on my robe and wizard hat.',
 		'i read the source code': '<3',
 		'pwd': 'You are in a maze of twisty passages, all alike.',
 		'lpr': 'PC LOAD LETTER',
