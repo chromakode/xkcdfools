@@ -14,6 +14,10 @@ function randomChoice(items) {
 	return items[getRandomInt(0, items.length-1)];
 }
 
+$(window).unload(()=>{
+	localStorage.last = xkcd.last.num;
+})
+
 var xkcd = {
 	latest: null,
 	last: null,
@@ -596,6 +600,9 @@ $(document).ready(function() {
 				xkcd.latest = data;
 				$('#screen').one('cli-ready', function(e) {
 					Terminal.runCommand('cat welcome.txt');
+					if(localStorage.last !== undefined){
+					   xkcd.last = {num:localStorage.last}
+					}
 				});
 				Terminal.runCommand('display '+xkcd.latest.num+'/'+pathFilename(xkcd.latest.img));
 			} else {
