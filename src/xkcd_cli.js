@@ -601,7 +601,7 @@ $(document).ready(function() {
 				$('#screen').one('cli-ready', function(e) {
 					Terminal.runCommand('cat welcome.txt');
 					if(localStorage.last !== undefined){
-					   xkcd.last = {num:localStorage.last}
+					   xkcd.last = {num:parseInt(localStorage.last)}
 					}
 				});
 				Terminal.runCommand('display '+xkcd.latest.num+'/'+pathFilename(xkcd.latest.img));
