@@ -14,6 +14,10 @@ function randomChoice(items) {
 	return items[getRandomInt(0, items.length-1)];
 }
 
+$(window).unload(()=>{
+	localStorage.last = xkcd.last.num;
+})
+
 var xkcd = {
 	latest: null,
 	last: null,
@@ -89,11 +93,11 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 		}
 	}, fail);
 };
-
+TerminalShell.commands['n']= 
 TerminalShell.commands['next'] = function(terminal) {
 	xkcdDisplay(terminal, xkcd.last.num+1);
 };
-
+TerminalShell.commands['p']= 
 TerminalShell.commands['previous'] =
 TerminalShell.commands['prev'] = function(terminal) {
 	xkcdDisplay(terminal, xkcd.last.num-1);
@@ -597,7 +601,13 @@ $(document).ready(function() {
 				$('#screen').one('cli-ready', function(e) {
 					Terminal.runCommand('cat welcome.txt');
 				});
-				Terminal.runCommand('display '+xkcd.latest.num+'/'+pathFilename(xkcd.latest.img));
+				if(localStorage.last !== undefined){
+				   xkcd.last = {num:parseInt(localStorage.last)}
+				}
+				else {
+				   xkcd.last = xkcd.latest
+				}
+				Terminal.runCommand('display '+xkcd.last.num+'/'+pathFilename(xkcd.last.img));
 			} else {
 				noData();
 			}
