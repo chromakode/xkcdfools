@@ -600,11 +600,14 @@ $(document).ready(function() {
 				xkcd.latest = data;
 				$('#screen').one('cli-ready', function(e) {
 					Terminal.runCommand('cat welcome.txt');
-					if(localStorage.last !== undefined){
-					   xkcd.last = {num:parseInt(localStorage.last)}
-					}
 				});
-				Terminal.runCommand('display '+xkcd.latest.num+'/'+pathFilename(xkcd.latest.img));
+				if(localStorage.last !== undefined){
+				   xkcd.last = {num:parseInt(localStorage.last)}
+				}
+				else {
+				   xkcd.last = xkcd.latest
+				}
+				Terminal.runCommand('display '+xkcd.last.num+'/'+pathFilename(xkcd.last.img));
 			} else {
 				noData();
 			}
