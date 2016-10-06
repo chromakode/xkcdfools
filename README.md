@@ -1,3 +1,14 @@
+Forked from [Unixkcd]()
+Original README is attached below 
+
+changes 
+ - use local storage to remeber last seen xkcd comics. Useful for people like me who like to see all of the comics in a sequence so that they are not missing on any.
+ - removed insecure http content loading to remove warnings and make it work with rawgit
+ - page hosted on Rawgit(https://cdn.rawgit.com/dominicrj23/xkcdfools/master/src/index.html) so that you can use this feature without xkcd actually merging it to their app
+ 
+ 
+==========
+
 unixkcd
 =========
 
