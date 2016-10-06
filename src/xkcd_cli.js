@@ -93,11 +93,11 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 		}
 	}, fail);
 };
-
+TerminalShell.commands['n']= 
 TerminalShell.commands['next'] = function(terminal) {
 	xkcdDisplay(terminal, xkcd.last.num+1);
 };
-
+TerminalShell.commands['p']= 
 TerminalShell.commands['previous'] =
 TerminalShell.commands['prev'] = function(terminal) {
 	xkcdDisplay(terminal, xkcd.last.num-1);
