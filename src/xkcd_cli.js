@@ -61,6 +61,12 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 			terminal.print("Time travel mode not enabled.");
 			return;
 		}
+		
+		if (num == 404) {
+			terminal.print("Error 404: Not Found");
+			return;
+		}
+		
 	} else {
 		num = xkcd.last.num;
 	}
@@ -91,12 +97,20 @@ var xkcdDisplay = TerminalShell.commands['display'] = function(terminal, path) {
 };
 
 TerminalShell.commands['next'] = function(terminal) {
-	xkcdDisplay(terminal, xkcd.last.num+1);
+	if (xkcd.last.num != 403) {
+		xkcdDisplay(terminal, xkcd.last.num+1);
+	} else {
+		xkcdDisplay(terminal, 405);
+	}
 };
 
 TerminalShell.commands['previous'] =
 TerminalShell.commands['prev'] = function(terminal) {
-	xkcdDisplay(terminal, xkcd.last.num-1);
+	if (xkcd.last.num != 405) {
+		xkcdDisplay(terminal, xkcd.last.num-1);
+	} else {
+		xkcdDisplay(terminal, 403);
+	}
 };
 
 TerminalShell.commands['first'] = function(terminal) {
