@@ -542,7 +542,7 @@ TerminalShell.fallback = function(terminal, cmd) {
 		'use the source luke': 'I\'m not luke, you\'re luke!',
 		'serenity': 'You can\'t take the sky from me.',
 		'enable time travel': 'TARDIS error: Time Lord missing.',
-		'ed': 'You are not a diety.'
+		'ed': 'You are not a deity.'
 	};
 	oneliners['emacs'] = 'You should really use vim.';
 	oneliners['vi'] = oneliners['vim'] = 'You should really use emacs.';
