@@ -14,6 +14,8 @@ function randomChoice(items) {
 	return items[getRandomInt(0, items.length-1)];
 }
 
+var User = "guest";
+
 var xkcd = {
 	latest: null,
 	last: null,
@@ -140,20 +142,39 @@ TerminalShell.commands['sudo'] = function(terminal) {
 	if (cmd_args.join(' ') == 'make me a sandwich') {
 		terminal.print('Okay.');
 	} else {
-		var cmd_name = cmd_args.shift();
-		cmd_args.unshift(terminal);
-		cmd_args.push('sudo');
-		if (TerminalShell.commands.hasOwnProperty(cmd_name)) {
-			this.sudo = true;
-			this.commands[cmd_name].apply(this, cmd_args);
-			delete this.sudo;
-		} else if (!cmd_name) {
-			terminal.print('sudo what?');
+		if (User = "root") {
+			var cmd_name = cmd_args.shift();
+			cmd_args.unshift(terminal);
+			cmd_args.push('sudo');
+			if (TerminalShell.commands.hasOwnProperty(cmd_name)) {
+				this.sudo = true;
+				this.commands[cmd_name].apply(this, cmd_args);
+				delete this.sudo;
+			} else if (!cmd_name) {
+				terminal.print('sudo what?');
+			} else {
+				terminal.print('sudo: '+cmd_name+': command not found');
+			}
 		} else {
-			terminal.print('sudo: '+cmd_name+': command not found');
+			terminal.print(User+' is not in the sudoers file.');
+			terminal.print('This incident will be reported.');
+			xkcdDisplay(terminal, 838);
 		}
 	}
 };
+
+TerminalShell.commands['su'] = function(terminal, user) {
+	
+	if (!user) {
+		user = "root";
+	}
+	
+	terminal.print("Password: ");
+	User = user;
+	delete user;
+	Terminal.config.prompt = User+'@xkcd:/$ ';
+	document.getElementById('title').innerHTML = User+'@xkcd';
+}
 
 TerminalShell.filters.push(function (terminal, cmd) {
 	if (/!!/.test(cmd)) {
